@@ -22,7 +22,19 @@
   .moon { position: absolute; top: 6%; left: 50%; transform: translateX(-50%); width: 110px; height: 110px; z-index: 1; }
   .moon svg { width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(201,169,97,0.35)) drop-shadow(0 0 60px rgba(123,82,181,0.3)); }
   .content { position: relative; z-index: 2; padding: 40px 32px; text-align: center; max-width: 800px; margin: 0 auto; }
-  .spacer-top { height: 180px; }
+  .spacer-top { height: 90px; }
+  .logo { margin-bottom: 28px; }
+  .logo svg { width: 100px; height: auto; filter: drop-shadow(0 0 15px rgba(201,169,97,0.3)); }
+  .logo-arch { opacity: 0; animation: logoFadeIn 1.2s 0.1s forwards; }
+  .logo-gradient { opacity: 0; animation: logoFadeIn 1s 0.4s forwards; }
+  .logo-wave { opacity: 0; animation: logoSlideUp 1s 0.7s forwards; }
+  .logo-frame { opacity: 0; animation: logoFadeIn 0.8s 0.9s forwards; }
+  .logo-moon { opacity: 0; transform: scale(0.5); transform-origin: center; animation: logoMoon 1s 1.1s forwards; }
+  .logo-stars { opacity: 0; animation: logoFadeIn 0.6s 1.3s forwards; }
+  .logo-figure { opacity: 0; animation: logoSlideUp 1s 1.5s forwards; }
+  @keyframes logoFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes logoSlideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes logoMoon { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
   .overline { font-family: 'Josefin Sans', sans-serif; font-weight: 300; font-size: 16px; letter-spacing: 7px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; opacity: 0; animation: fadeUp 1s 0.3s forwards; }
   .title { font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 400; line-height: 1.1; color: var(--pearl); margin-bottom: 14px; opacity: 0; animation: fadeUp 1s 0.5s forwards; }
   .subtitle { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; font-style: italic; color: var(--lavender); margin-bottom: 50px; opacity: 0; animation: fadeUp 1s 0.7s forwards; }
@@ -62,24 +74,72 @@
   <div class="moon"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="moonGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e8d5a3;stop-opacity:0.85" /><stop offset="100%" style="stop-color:#c9a961;stop-opacity:0.6" /></linearGradient></defs><path d="M50 5 A45 45 0 1 1 50 95 A30 30 0 1 0 50 5Z" fill="url(#moonGrad)" /></svg></div>
   <div class="content">
     <div class="spacer-top"></div>
+    <div class="logo">
+      <svg viewBox="0 0 697 911" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(496.217,654.431,-892.465,676.704,589.342,-357.076)">
+            <stop offset="0" stop-color="#132148"/>
+            <stop offset=".365" stop-color="#3b2b71"/>
+            <stop offset=".685" stop-color="#b46b8d"/>
+            <stop offset="1" stop-color="#f1b795"/>
+          </linearGradient>
+        </defs>
+        <!-- Arch outline -->
+        <g class="logo-arch">
+          <path fill="#fefefe" d="m345.63 0.08c-190.67 0-345.78 155.12-345.78 345.78v532.48 28.62h28.61 634.47 28.61v-28.62-532.48c0-147.97-93.9-279.4-233.68-327.04-35.9-12.42-73.7-18.74-112.23-18.74zm0 28.62c35.36 0 70 5.79 103 17.2 128.14 43.68 214.3 164.24 214.3 299.96v532.48h-634.47v-532.48c0-174.88 142.28-317.16 317.17-317.16z"/>
+        </g>
+        <!-- Gradient sky -->
+        <g class="logo-gradient">
+          <path fill="url(#g1)" d="m52.27 345.87v511.01h591.56v-511.01c0-126.47-80.26-238.92-199.86-279.69-30.62-10.59-62.95-16.02-95.99-16.02-163.1 0-295.71 132.62-295.71 295.71z"/>
+        </g>
+        <!-- Wave/landscape -->
+        <g class="logo-wave">
+          <path fill="#fefefe" d="m49.92 419.11v437.77h591.56v-81.54c-113.45-210.88-335.63-354.65-591.56-356.23z"/>
+        </g>
+        <!-- Dark frame -->
+        <g class="logo-frame">
+          <path fill="#142048" d="m662.93 878.34h-634.47v-532.48c0-174.88 142.28-317.16 317.16-317.16 35.37 0 70.01 5.79 103.01 17.2 128.14 43.68 214.3 164.24 214.3 299.96zm-591.55-42.92h548.63v-489.56c0-117.34-74.48-221.58-185.32-259.37-28.56-9.88-58.5-14.87-89.07-14.87-151.22 0-274.24 123.02-274.24 274.24z"/>
+        </g>
+        <!-- Moon -->
+        <g class="logo-moon">
+          <path fill="#fefefe" d="m430.2 338.87c-46.74 0-84.51-37.78-84.51-84.51 0-46.73 37.77-84.51 84.51-84.51 46.73 0 84.51 37.78 84.51 84.51 0 46.73-37.78 84.51-84.51 84.51z"/>
+        </g>
+        <!-- Stars -->
+        <g class="logo-stars">
+          <path fill="#fefefe" d="m283.57 128.86l-11.41 11.41 11.41 11.41 11.41-11.41z"/>
+          <path fill="#fefefe" d="m515.98 458.45l-11.41 11.41 11.41 11.41 11.4-11.41z"/>
+          <path fill="#fefefe" d="m206.22 319.15l-8.47 15.49-15.5 8.48 15.5 8.47 8.47 15.5 8.48-15.5 15.49-8.47-15.49-8.48z"/>
+          <path fill="#fefefe" d="m266.99 242.21c0-3.44-2.79-6.23-6.23-6.23-3.44 0-6.24 2.79-6.24 6.23 0 3.44 2.8 6.23 6.24 6.23 3.44 0 6.23-2.79 6.23-6.23z"/>
+          <path fill="#fefefe" d="m417.52 106.47c0-3.45-2.79-6.24-6.23-6.24-3.45 0-6.24 2.79-6.24 6.24 0 3.44 2.79 6.23 6.24 6.23 3.44 0 6.23-2.79 6.23-6.23z"/>
+          <path fill="#fefefe" d="m142.66 271.26c0-3.44-2.8-6.23-6.24-6.23-3.44 0-6.23 2.79-6.23 6.23 0 3.44 2.79 6.23 6.23 6.23 3.44 0 6.24-2.79 6.24-6.23z"/>
+          <path fill="#fefefe" d="m377.27 385.35c0-3.44-2.79-6.23-6.23-6.23-3.44 0-6.23 2.79-6.23 6.23 0 3.44 2.79 6.23 6.23 6.23 3.44 0 6.23-2.79 6.23-6.23z"/>
+          <path fill="#fefefe" d="m569.64 567.05c0-3.45-2.79-6.24-6.23-6.24-3.44 0-6.23 2.79-6.23 6.24 0 3.44 2.79 6.23 6.23 6.23 3.44 0 6.23-2.79 6.23-6.23z"/>
+          <path fill="#fefefe" d="m569.64 360c0-3.45-2.79-6.24-6.23-6.24-3.45 0-6.24 2.79-6.24 6.24 0 3.44 2.79 6.23 6.24 6.23 3.44 0 6.23-2.79 6.23-6.23z"/>
+        </g>
+        <!-- Figure -->
+        <g class="logo-figure">
+          <path fill="#142048" d="m229.74 848.65c-1.04-5.43-6.04-2.81-9.49-4.55 2.13-41.05 8.63-95.17 7.76-136.04q-0.41-0.01-0.82-0.02c-2.39 12.4-25.47 93.94-25.61 94.84-3 19.66 6.42 21.95 8.04 22.97 3.49 2.18 3.79 5.48 3.81 9.11-0.91 5.87-8.64 6.05-12.75 9.12-4.21-0.03-5.62-1.54-10.21 0.53-3.68 0.74-10.44 2.03-11.64-2.53 5.57-39.26 1.78-79.56 16.04-117.62-0.05-22.03-2.9-44.09-1.58-65.93-1.35-15.66-10.48-30.57-12.77-46.36-0.3-2.06-0.21-4.12 0.03-6.18 3.7-30.75 2.79-66.43 35.96-79.99 4.76-2.81 9.17-5.14 9.91-9.61-1.59-8.48-10.4-17.11-9.01-27.74 4.6-19.64 30.72-25.95 38.95-4.35 2.03 9.97 5.38 19.88-1.87 29.49-12.1 16 19.58 25.93 21.67 29.66 5.92 10.57 14.66 78.64 17.04 108.19-3.15 15.52 15.08 37.96-5.81 46.39-5.04 2.84-6.2-3.04-3.9-6.28 1.56-1.69 2.05-2.97 1.39-5.09-0.29-9.38-3.59-18.79-8.13-27.06-0.33 0.14-6.97-0.06-7.3 0.08-0.16 2.88-1.25 10.77-1.68 14.03-4.08 25.24-21.86 117.48-22.82 141.46-0.49 12.48 14.51 16.58 22 14.94 6.68-0.37 4.74 11.16 0.27 12.57-6.33 3.13-11.5-0.33-15.23 5.97q-11.12 0-22.25 0zm-43.9-8.19c0.1-2.73-3.73-3.06-4.84-0.8q0.13 0.69 0.27 1.37 2.28-0.29 4.57-0.57z"/>
+        </g>
+      </svg>
+    </div>
     <div class="overline">Expérience immersive</div>
     <h1 class="title">Voyage<br>Intérieur</h1>
     <p class="subtitle">Yoga · Breathwork · Hypnose · Soin sonore</p>
     <div class="divider"></div>
-    <p class="description">Le temps d'une matinée, poussez la porte. À travers le mouvement, le souffle et l'hypnose, plongez là où votre <em>sagesse intérieure</em> murmure déjà.</p>
+    <p class="description">Le temps d'une matinée, poussez la porte.<br>À travers le mouvement, le souffle et l'hypnose,<br>plongez là où votre <em>sagesse intérieure</em> murmure déjà.</p>
     <div class="intention">
       <div class="intention-label">Avant de venir</div>
-      <p class="intention-text">Choisissez <em>une question existentielle</em> — celle qui vous habite en ce moment. Gardez-la précieusement. Elle sera le fil conducteur de votre voyage.</p>
+      <p class="intention-text">Choisissez <em>une question existentielle</em> —<br>celle qui vous habite en ce moment.<br>Gardez-la précieusement.<br>Elle sera le fil conducteur de votre voyage.</p>
     </div>
     <div class="program">
       <div class="program-title">Le parcours</div>
-      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">L'éveil</div><div class="step-desc">Yoga dynamique avec Nat — épuisez le mental par le corps pour mieux lâcher prise</div></div></div>
+      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">L'éveil</div><div class="step-desc">Yoga dynamique avec Nat — épuisez le mental<br>par le corps pour mieux lâcher prise</div></div></div>
       <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le souffle</div><div class="step-desc">Breathwork — ralentissez, descendez en vous, ouvrez l'espace intérieur</div></div></div>
-      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le voyage</div><div class="step-desc">Hypnose guidée — posez votre question à votre sagesse profonde et laissez la réponse émerger</div></div></div>
-      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">La vision</div><div class="step-desc">Visualisation — ancrez votre intention et plantez la graine de ce que vous souhaitez manifester</div></div></div>
-      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">La purification</div><div class="step-desc">Nettoyage énergétique — harmonisation de chacun de vos centres d'énergie</div></div></div>
-      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le soin</div><div class="step-desc">Immersion sonore — laissez les vibrations vous envelopper et restaurer votre équilibre</div></div></div>
-      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le retour</div><div class="step-desc">Cercle de partage — intégrez votre expérience en toute bienveillance</div></div></div>
+      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le voyage</div><div class="step-desc">Hypnose guidée — posez votre question<br>à votre sagesse profonde et laissez la réponse émerger</div></div></div>
+      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">La vision</div><div class="step-desc">Visualisation — ancrez votre intention<br>et plantez la graine de ce que vous souhaitez manifester</div></div></div>
+      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">La purification</div><div class="step-desc">Nettoyage énergétique —<br>harmonisation de chacun de vos centres d'énergie</div></div></div>
+      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le soin</div><div class="step-desc">Immersion sonore — laissez les vibrations<br>vous envelopper et restaurer votre équilibre</div></div></div>
+      <div class="step"><div class="step-icon">✦</div><div class="step-text"><div class="step-name">Le retour</div><div class="step-desc">Partagez votre expérience si vous le souhaitez,<br>en groupe et en toute bienveillance</div></div></div>
     </div>
     <div class="highlight"><p class="highlight-text">« Les réponses sont déjà là.<br>Il suffit d'ouvrir la porte. »</p></div>
     <div class="details">
