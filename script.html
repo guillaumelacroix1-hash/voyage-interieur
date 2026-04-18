@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow">
+<title>Voyage Intérieur — Script v2</title>
+<style>
+  :root {
+    --bg: #0f0a1e;
+    --bg-elevated: #1a1330;
+    --text: #f5efe4;
+    --text-dim: #a89db8;
+    --gold: #d4a94a;
+    --gold-soft: #8b6f2b;
+    --violet: #9d6fe0;
+    --violet-dark: #4b2a82;
+    --border: #2a1f4a;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+    font-size: var(--base-size, 20px);
+  }
+
+  /* ───────── Background étoiles ───────── */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 45% 70%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 85% 60%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 25% 85%, rgba(212,169,74,0.5), transparent),
+      radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 90% 85%, rgba(255,255,255,0.3), transparent);
+    background-size: 100% 100%;
+  }
+
+  /* ───────── Sidebar navigation ───────── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    overflow-y: auto;
+    z-index: 10;
+    transition: transform 0.3s ease;
+  }
+  .sidebar.hidden { transform: translateX(-100%); }
+
+  .brand {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .brand h1 {
+    font-size: 20px;
+    color: var(--gold);
+    font-weight: normal;
+    letter-spacing: 2px;
+    font-style: italic;
+  }
+  .brand p {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .nav-list {
+    list-style: none;
+  }
+  .nav-list li {
+    margin-bottom: 2px;
+  }
+  .nav-list a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .nav-list a:hover {
+    background: rgba(157, 111, 224, 0.1);
+    color: var(--text);
+  }
+  .nav-list a.active {
+    background: rgba(212, 169, 74, 0.1);
+    color: var(--gold);
+    border-left-color: var(--gold);
+  }
+  .nav-list .num {
+    font-weight: bold;
+    color: var(--violet);
+    margin-right: 8px;
+  }
+  .nav-list a.active .num { color: var(--gold); }
+  .nav-list .dur {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: monospace;
+  }
+
+  /* ───────── Controls bar ───────── */
+  .controls {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+    background: rgba(26, 19, 48, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .ctrl-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .ctrl-btn:hover {
+    background: rgba(157, 111, 224, 0.15);
+    border-color: var(--violet);
+  }
+  .ctrl-btn.active {
+    background: rgba(212, 169, 74, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ───────── Main content ───────── */
+  .main {
+    margin-left: 260px;
+    padding: 60px 80px 120px;
+    max-width: 1000px;
+    position: relative;
+    z-index: 1;
+    transition: margin-left 0.3s ease;
+  }
+  .main.full { margin-left: 0; padding-left: 40px; padding-right: 40px; max-width: 900px; margin-right: auto; }
+
+  /* Cover / Header doc */
+  .cover {
+    text-align: center;
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 80px;
+  }
+  .cover h1 {
+    font-size: 52px;
+    font-weight: normal;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+  .cover .subtitle {
+    font-style: italic;
+    color: var(--gold);
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+  .cover .meta {
+    color: var(--text-dim);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  .cover .meta strong { color: var(--gold); }
+
+  /* ───────── Phase header ───────── */
+  .phase {
+    margin-bottom: 100px;
+    scroll-margin-top: 20px;
+  }
+  .phase-header {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-num {
+    font-size: 72px;
+    font-weight: normal;
+    color: var(--violet);
+    font-style: italic;
+    line-height: 1;
+    opacity: 0.7;
+  }
+  .phase-title {
+    flex: 1;
+  }
+  .phase-title h2 {
+    font-size: 28px;
+    font-weight: normal;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .phase-title .time {
+    color: var(--gold);
+    font-size: 15px;
+    font-style: italic;
+    letter-spacing: 1px;
+  }
+
+  /* ───────── Subsection ───────── */
+  .subsection {
+    margin-bottom: 36px;
+  }
+  .subsection h3 {
+    font-size: 18px;
+    font-weight: normal;
+    color: var(--violet);
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-left: 0;
+  }
+  .subsection h3::before {
+    content: "· ";
+    color: var(--gold);
+  }
+
+  /* ───────── Texte à voix haute ───────── */
+  .voix {
+    font-style: italic;
+    font-size: 1.2em;
+    line-height: 1.85;
+    color: var(--text);
+    margin-bottom: 18px;
+    padding: 0 4px 0 24px;
+    border-left: 3px solid var(--gold-soft);
+    transition: all 0.2s;
+  }
+  .voix:hover {
+    border-left-color: var(--gold);
+  }
+
+  /* ───────── Pause ───────── */
+  .pause {
+    text-align: center;
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 0.85em;
+    margin: 16px 0;
+    letter-spacing: 2px;
+  }
+  .pause.big {
+    padding: 20px;
+    margin: 30px 0;
+    background: rgba(212, 169, 74, 0.05);
+    border: 1px dashed var(--gold-soft);
+    border-radius: 8px;
+    color: var(--gold);
+    font-size: 1em;
+    letter-spacing: 3px;
+  }
+
+  /* ───────── Notes techniques ───────── */
+  .note {
+    background: rgba(212, 169, 74, 0.06);
+    border-left: 2px solid var(--gold-soft);
+    padding: 12px 18px;
+    margin: 20px 0;
+    font-size: 0.85em;
+    color: var(--gold);
+    line-height: 1.6;
+    font-style: italic;
+    border-radius: 0 4px 4px 0;
+  }
+  .note::before {
+    content: "◆ ";
+    color: var(--gold);
+    font-weight: bold;
+    font-style: normal;
+  }
+  body.reading-mode .note { display: none; }
+
+  /* ───────── Plan B ───────── */
+  .planB {
+    margin: 30px 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .planB-header {
+    background: rgba(157, 111, 224, 0.1);
+    padding: 10px 16px;
+    font-size: 0.85em;
+    color: var(--violet);
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+  }
+  .planB-header .chevron { transition: transform 0.3s; }
+  .planB.collapsed .chevron { transform: rotate(-90deg); }
+  .planB.collapsed .planB-body { display: none; }
+  .planB-body {
+    padding: 12px 16px;
+  }
+  .planB-item {
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.9em;
+  }
+  .planB-item:last-child { border: none; }
+  .planB-label {
+    color: var(--text-dim);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .planB-label::before { content: "↳ "; color: var(--gold); }
+  .planB-phrase {
+    color: var(--text);
+    font-style: italic;
+    padding-left: 16px;
+  }
+  body.reading-mode .planB { display: none; }
+
+  /* ───────── Special blocks ───────── */
+  .ring {
+    text-align: center;
+    font-size: 1.4em;
+    color: var(--gold);
+    margin: 24px 0;
+    letter-spacing: 4px;
+  }
+
+  /* Progress bar */
+  .progress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    z-index: 30;
+    background: rgba(212, 169, 74, 0.1);
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  /* Table of phases overview */
+  .overview {
+    background: var(--bg-elevated);
+    padding: 24px;
+    border-radius: 8px;
+    margin: 30px 0;
+    border: 1px solid var(--border);
+  }
+  .overview h3 {
+    font-size: 16px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    font-weight: normal;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .overview table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .overview td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .overview td:first-child { color: var(--violet); font-weight: bold; width: 40px; }
+  .overview td:nth-child(2) { color: var(--text); }
+  .overview td:nth-child(3) { color: var(--gold); font-family: monospace; width: 80px; }
+  .overview td:last-child { color: var(--text-dim); width: 160px; }
+  .overview tr:last-child td { border: none; }
+  .overview tr.total { border-top: 2px solid var(--gold-soft); }
+  .overview tr.total td { color: var(--gold); font-weight: bold; padding-top: 10px; }
+
+  /* Toggle sidebar button */
+  .toggle-sidebar {
+    position: fixed;
+    left: 12px;
+    top: 12px;
+    z-index: 15;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+  }
+  .main.full ~ .toggle-sidebar { display: flex; }
+
+  /* Overlay when sidebar open on mobile */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9;
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.active { display: block; }
+
+  /* Reading mode emphasis */
+  body.reading-mode .voix {
+    font-size: 1.4em;
+    line-height: 2;
+    padding-left: 30px;
+  }
+  body.reading-mode .subsection h3 {
+    font-size: 14px;
+    opacity: 0.6;
+  }
+
+  /* ───────── Responsive tablette ───────── */
+  @media (max-width: 1100px) {
+    .sidebar { width: 220px; }
+    .main { margin-left: 220px; padding: 60px 40px 120px; }
+    .cover h1 { font-size: 44px; }
+  }
+
+  /* ───────── Responsive téléphone ───────── */
+  @media (max-width: 768px) {
+    :root { --base-size: 17px; }
+
+    /* Sidebar en overlay off-canvas */
+    .sidebar {
+      transform: translateX(-100%);
+      width: 85vw;
+      max-width: 320px;
+      box-shadow: var(--shadow);
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    /* Hamburger toujours visible sur mobile */
+    .toggle-sidebar { display: flex !important; }
+
+    /* Main prend toute la largeur */
+    .main,
+    .main.full {
+      margin-left: 0;
+      padding: 70px 18px 80px;
+      max-width: 100%;
+    }
+
+    /* Controls : barre du haut, plus compacte */
+    .controls {
+      top: 12px;
+      right: 12px;
+      left: 64px;
+      padding: 6px;
+      gap: 4px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .ctrl-btn {
+      padding: 6px 8px;
+      font-size: 12px;
+      min-width: 36px;
+    }
+    /* Cache plein écran sur mobile (pas utile) */
+    #btnFull { display: none; }
+
+    /* Cover */
+    .cover { padding: 40px 0 30px; margin-bottom: 50px; }
+    .cover h1 { font-size: 32px; letter-spacing: 1px; }
+    .cover .subtitle { font-size: 15px; }
+    .cover .meta { font-size: 12px; }
+
+    /* Phase headers */
+    .phase { margin-bottom: 60px; }
+    .phase-header { gap: 14px; flex-wrap: wrap; padding-bottom: 14px; margin-bottom: 28px; }
+    .phase-num { font-size: 40px; }
+    .phase-title h2 { font-size: 19px; line-height: 1.3; }
+    .phase-title .time { font-size: 13px; }
+
+    /* Subsections */
+    .subsection { margin-bottom: 28px; }
+    .subsection h3 { font-size: 14px; margin-bottom: 14px; letter-spacing: 0.5px; }
+
+    /* Texte à voix haute — lisibilité max */
+    .voix {
+      font-size: 1.15em;
+      line-height: 1.8;
+      padding: 0 2px 0 14px;
+      margin-bottom: 14px;
+    }
+    body.reading-mode .voix {
+      font-size: 1.3em;
+      padding-left: 16px;
+    }
+
+    /* Notes plus compactes */
+    .note {
+      padding: 10px 12px;
+      font-size: 0.82em;
+      margin: 14px 0;
+    }
+
+    /* Pauses */
+    .pause { font-size: 0.8em; margin: 10px 0; }
+    .pause.big {
+      padding: 14px 10px;
+      margin: 20px 0;
+      font-size: 0.85em;
+      letter-spacing: 1.5px;
+    }
+
+    /* Plan B plus compact */
+    .planB { margin: 20px 0; }
+    .planB-header { font-size: 0.8em; padding: 10px 14px; }
+    .planB-body { padding: 10px 14px; }
+    .planB-item { font-size: 0.85em; }
+
+    /* Overview table — scroll horizontal si besoin */
+    .overview { padding: 16px; }
+    .overview table { font-size: 12px; }
+    .overview td { padding: 5px 4px; }
+    .overview td:last-child { display: none; } /* cache "qui guide" sur mobile */
+
+    /* Progress bar un peu plus épaisse (doigts) */
+    .progress { height: 3px; }
+  }
+
+  /* ───────── Très petit écran ───────── */
+  @media (max-width: 380px) {
+    .cover h1 { font-size: 26px; }
+    .phase-num { font-size: 32px; }
+    .phase-title h2 { font-size: 17px; }
+    .ctrl-btn { font-size: 11px; padding: 5px 6px; }
+  }
+
+  /* ───────── Orientation paysage mobile ───────── */
+  @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+    .cover { padding: 20px 0; }
+    .controls { top: 8px; padding: 4px; }
+    .toggle-sidebar { width: 36px; height: 36px; top: 8px; left: 8px; }
+    .main { padding-top: 52px; }
+  }
+
+  /* ───────── Tap targets accessibles ───────── */
+  @media (hover: none) and (pointer: coarse) {
+    .nav-list a { padding: 14px 12px; }
+    .ctrl-btn { min-height: 36px; }
+    .planB-header { padding: 14px 16px; }
+  }
+
+  /* Print */
+  @media print {
+    .sidebar, .controls, .progress, .toggle-sidebar { display: none; }
+    .main { margin-left: 0; max-width: none; }
+    body { background: white; color: black; }
+    .voix { color: black; border-color: #999; }
+    .note { background: #fef9e7; color: #7b5b10; border-color: #d4a94a; }
+    .phase { page-break-before: always; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+<button class="toggle-sidebar" id="toggleSidebar" aria-label="Afficher la navigation">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <h1>Voyage Intérieur</h1>
+    <p>LA PORTE DES RÊVES</p>
+  </div>
+  <ul class="nav-list" id="navList">
+    <li><a href="#cover"><span><span class="num">◈</span>Couverture</span><span class="dur">—</span></a></li>
+    <li><a href="#overview"><span><span class="num">☰</span>Vue d'ensemble</span><span class="dur">2h</span></a></li>
+    <li><a href="#phase-1"><span><span class="num">1</span>Accueil + Pré-talk</span><span class="dur">12'</span></a></li>
+    <li><a href="#phase-2"><span><span class="num">2</span>Yoga (Nat)</span><span class="dur">15'</span></a></li>
+    <li><a href="#phase-3"><span><span class="num">3</span>Breathwork</span><span class="dur">8'</span></a></li>
+    <li><a href="#phase-4"><span><span class="num">4</span>Induction + Porte</span><span class="dur">18'</span></a></li>
+    <li><a href="#phase-5"><span><span class="num">5</span>Question · Station</span><span class="dur">15'</span></a></li>
+    <li><a href="#phase-6"><span><span class="num">6</span>Manifestation</span><span class="dur">8'</span></a></li>
+    <li><a href="#phase-7"><span><span class="num">7</span>Chakras</span><span class="dur">8'</span></a></li>
+    <li><a href="#phase-8"><span><span class="num">8</span>Soin sonore</span><span class="dur">15'</span></a></li>
+    <li><a href="#phase-9"><span><span class="num">9</span>Exduction + Égrégore</span><span class="dur">8'</span></a></li>
+    <li><a href="#phase-10"><span><span class="num">10</span>Cercle de partage</span><span class="dur">13'</span></a></li>
+    <li><a href="#annexes"><span><span class="num">✦</span>Annexes</span><span class="dur">—</span></a></li>
+  </ul>
+</aside>
+
+<div class="controls">
+  <button class="ctrl-btn" id="btnFont-" title="Texte plus petit">A−</button>
+  <button class="ctrl-btn" id="btnFont+" title="Texte plus grand">A+</button>
+  <button class="ctrl-btn" id="btnReading" title="Mode lecture (cache notes techniques)">👁 Notes</button>
+  <button class="ctrl-btn" id="btnSidebar" title="Masquer/afficher la nav">☰</button>
+  <button class="ctrl-btn" id="btnFull" title="Plein écran">⛶</button>
+</div>
+
+<main class="main" id="main">
+
+<!-- ═══════════════════════════ COVER ═══════════════════════════ -->
+<section class="cover" id="cover">
+  <h1>Voyage Intérieur</h1>
+  <p class="subtitle">Script d'hypnose de groupe — v2</p>
+  <p class="meta"><strong>Guillaume Lacroix</strong> · La Porte des Rêves<br>
+  25 avril 2026 · 10-15 participants · 2h</p>
+</section>
+
+<!-- ═══════════════════════════ OVERVIEW ═══════════════════════════ -->
+<section class="phase" id="overview">
+  <div class="phase-header">
+    <div class="phase-num">☰</div>
+    <div class="phase-title">
+      <h2>Vue d'ensemble — 120 min (2h pile)</h2>
+      <p class="time">Pour que le timing tienne</p>
+    </div>
+  </div>
+
+  <div class="note">Texte en italique (encadré d'un trait doré) = à lire à voix haute. Paragraphes en doré (comme celui-ci) = notes techniques pour toi, à NE PAS lire. Encadrés bleus en bas de phase = phrases Plan B contextuelles.</div>
+
+  <div class="note">Clique sur 👁 Notes en haut à droite pour masquer toutes les notes et ne garder que ton texte à dire — mode lecture pendant la séance.</div>
+
+  <div class="overview">
+    <h3>Timing phase par phase</h3>
+    <table>
+      <tr><td>1</td><td>Accueil + Pré-talk + respi synchro</td><td>12 min</td><td>Toi (debout)</td></tr>
+      <tr><td>2</td><td>Yoga dynamique</td><td>15 min</td><td>Nat</td></tr>
+      <tr><td>3</td><td>Transition + breathwork</td><td>8 min</td><td>Toi</td></tr>
+      <tr><td>4</td><td>Induction (escalier → porte)</td><td>18 min</td><td>Toi</td></tr>
+      <tr><td>5</td><td>Question existentielle + silence</td><td>15 min</td><td>Toi puis musique</td></tr>
+      <tr><td>6</td><td>Manifestation (filet sécurité)</td><td>8 min</td><td>Toi</td></tr>
+      <tr><td>7</td><td>Harmonisation centres d'énergie</td><td>8 min</td><td>Toi</td></tr>
+      <tr><td>8</td><td>Soin sonore (amorce + silence)</td><td>15 min</td><td>Toi puis musique</td></tr>
+      <tr><td>9</td><td>Exduction + égrégore</td><td>8 min</td><td>Toi</td></tr>
+      <tr><td>10</td><td>Cercle de partage</td><td>13 min</td><td>Toi</td></tr>
+      <tr class="total"><td>✦</td><td>Total</td><td>120 min</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="subsection">
+    <h3>Posture de voix</h3>
+    <div class="note">Voix grave, posée, lente — 50% plus lente que ta voix conversationnelle.</div>
+    <div class="note">Affirmer, pas justifier. Tu es le meneur (principe Le Bon : affirmation + répétition).</div>
+    <div class="note">Tu peux répéter deux fois une suggestion forte. L'inconscient reçoit mieux.</div>
+    <div class="note">Tes propres respirations audibles guident le groupe par contagion.</div>
+    <div class="note">Silence = outil, pas un vide. N'aie pas peur de te taire 5-10 sec.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 1 ═══════════════════════════ -->
+<section class="phase" id="phase-1">
+  <div class="phase-header">
+    <div class="phase-num">1</div>
+    <div class="phase-title">
+      <h2>Accueil + Pré-talk + respiration synchronisée</h2>
+      <p class="time">12 min · Toi debout</p>
+    </div>
+  </div>
+
+  <div class="note">Objectif : dédramatiser, couper l'herbe au mental, créer l'âme collective dès les premières minutes (Le Bon).</div>
+  <div class="note">Posture : meneur bienveillant mais assuré. Pas de justification. Tu sais où tu les emmènes.</div>
+
+  <div class="subsection">
+    <h3>Accueil chaleureux · 1 min</h3>
+    <p class="voix">Bienvenue à tous. Merci d'être là. Prenez le temps de vous installer confortablement sur votre tapis, sur votre coussin. Vous pouvez vous allonger si vous êtes à l'aise, ou rester assis.</p>
+    <p class="voix">Je m'appelle Guillaume, je suis praticien en hypnose transpersonnelle. Aujourd'hui, nous allons vivre ensemble un voyage intérieur.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Respiration synchronisée · 2 min</h3>
+    <div class="note">Rituel d'ouverture — contagion mentale immédiate, âme collective activée (Le Bon). Donne le rythme à voix haute et respire TOI-MÊME avec eux.</div>
+    <p class="voix">Avant toute chose, je vous propose de nous synchroniser. Fermez les yeux un instant.</p>
+    <p class="voix">Ensemble, nous allons prendre trois grandes respirations.</p>
+    <p class="voix">Inspirez par le nez... profondément...</p>
+    <p class="pause">( pause )</p>
+    <p class="voix">Expirez par la bouche... en relâchant.</p>
+    <p class="pause">( × 3 cycles, voix qui ralentit à chaque cycle )</p>
+    <p class="voix">Voilà. Nous sommes ensemble, maintenant. Vous pouvez rouvrir les yeux.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Ce qu'est l'hypnose — et ce qu'elle n'est pas · 4 min</h3>
+    <div class="note">Démystification HT. La métaphore du « trajet en voiture » est éprouvée : tout le monde reconnaît la sensation, ça ancre immédiatement que la transe est naturelle.</div>
+    <p class="voix">Avant d'aller plus loin, je veux prendre quelques minutes pour vous dire ce qu'est l'hypnose.</p>
+    <p class="voix">L'hypnose, ce n'est pas dormir. Ce n'est pas perdre le contrôle. C'est un état naturel que votre cerveau connaît très bien — vous y allez plusieurs fois par jour sans vous en rendre compte.</p>
+    <p class="voix">Vous conduisez ? Il vous est sûrement déjà arrivé d'arriver chez vous sans vous souvenir du trajet. C'est ça, un état de transe légère. Nous allons simplement aller un peu plus loin, un peu plus profond.</p>
+    <p class="voix">Concrètement, votre cerveau va passer d'une fréquence d'activité autour de 21 hertz — l'état d'éveil actif — à une fréquence plus basse, autour de 10 à 14 hertz. Ce n'est pas ésotérique. C'est physiologique. C'est mesurable. Et c'est exactement l'état qu'on utilise dans les blocs opératoires pour opérer sans anesthésie générale.</p>
+    <p class="voix">Vous resterez conscients. Vous entendrez ma voix. Vous pourrez ouvrir les yeux si vous le souhaitez, à tout moment. Vous gardez le contrôle tout du long.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Couper l'herbe sous le pied du mental · 3 min</h3>
+    <div class="note">Cœur du pré-talk HT. Tu anticipes ce que leur mental va dire pour le neutraliser d'avance. Technique signature.</div>
+    <p class="voix">Comme vous restez conscients, votre mental va rester présent. Et c'est précisément lui qui peut saboter l'expérience s'il n'est pas prévenu.</p>
+    <p class="voix">Alors je vais vous dire ce qu'il va vous dire. Comme ça, quand ça arrivera, vous saurez le reconnaître.</p>
+    <p class="voix">Il va vous dire : « Je ne suis pas hypnotisé, je peux même ouvrir les yeux. » C'est vrai. Vous le pouvez. Ça ne change rien à la transe.</p>
+    <p class="voix">Il va vous dire : « C'est mon imagination. Je suis en train de tout inventer. »</p>
+    <p class="voix">Il va vous dire : « Comme par hasard, j'ai vu ça dans un film. »</p>
+    <p class="voix">Il va vous dire : « C'est n'importe quoi. » Ou : « C'est tellement cliché. »</p>
+    <p class="voix">Si vous reconnaissez une de ces phrases pendant l'expérience, félicitations : c'est exactement le signe que votre mental essaie de prendre le dessus.</p>
+    <p class="voix">Ce qu'il faut savoir, c'est que votre mental a trois fonctions. Il analyse. Il compare. Il classifie. Ça, c'est son rôle — il est là pour vous protéger. Mais il y a une chose qu'il ne sait pas faire : il ne sait pas imaginer.</p>
+    <p class="voix">L'imagination, les ressentis, les intuitions — ce n'est pas lui. C'est une autre partie de vous, plus profonde. Et c'est cette partie-là qui va travailler aujourd'hui.</p>
+    <p class="voix">Donc si votre mental intervient, ne le combattez pas. Dites-lui simplement, intérieurement : « Tu auras tout le temps de critiquer après. Pour l'instant, laisse-moi jouer le jeu. »</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Les 4 façons de percevoir · 1 min</h3>
+    <div class="note">Rassure ceux qui ne « voient » pas. Prévient 50% des frustrations post-séance.</div>
+    <p class="voix">Autre chose importante : vous n'allez pas forcément VOIR des images. Certains voient. D'autres ressentent. D'autres entendent. D'autres savent, simplement, par intuition.</p>
+    <p class="voix">Toutes ces façons sont valables. Faites confiance à la PREMIÈRE chose qui vous vient, sans la juger, même si elle vous semble évidente, banale, ou venir de vous.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>La question existentielle · 1 min</h3>
+    <div class="note">Rappel du fil rouge. Moment de bascule : on sort du pédagogique pour entrer dans l'intime.</div>
+    <p class="voix">Maintenant. Je vous avais demandé d'arriver avec une question. Une question existentielle qui vous habite en ce moment. Pas une question à laquelle vous voulez qu'on vous donne LA réponse — mais une question que vous portez, sincèrement.</p>
+    <p class="voix">Prenez un instant. Retrouvez-la.</p>
+    <p class="pause">( 10 sec de silence )</p>
+    <p class="voix">Gardez-la précieusement. Elle sera votre fil conducteur.</p>
+    <p class="voix">Est-ce qu'il y a des questions, des peurs, avant qu'on commence ?</p>
+    <p class="pause">( attendre, répondre simplement s'il y a des questions )</p>
+  </div>
+
+  <div class="planB">
+    <div class="planB-header">🛟 PLAN B — Si perturbation<span class="chevron">▼</span></div>
+    <div class="planB-body">
+      <div class="planB-item"><span class="planB-label">Quelqu'un dit avoir peur</span><div class="planB-phrase">« C'est normal d'avoir un peu d'appréhension. C'est juste votre mental. Vous allez voir, dès qu'on commence, il va se détendre. »</div></div>
+      <div class="planB-item"><span class="planB-label">Quelqu'un doute de pouvoir être hypnotisé</span><div class="planB-phrase">« Faites-moi confiance. Si vous arrivez à imaginer un citron que je vous décris, vous êtes hypnotisable. Tout le monde l'est. »</div></div>
+      <div class="planB-item"><span class="planB-label">Silence gênant</span><div class="planB-phrase">« Très bien. Alors nous commençons. »</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 2 ═══════════════════════════ -->
+<section class="phase" id="phase-2">
+  <div class="phase-header">
+    <div class="phase-num">2</div>
+    <div class="phase-title">
+      <h2>Yoga dynamique avec Nat</h2>
+      <p class="time">15 min · Nat guide — tu te prépares</p>
+    </div>
+  </div>
+
+  <div class="note">Nat guide. Toi, tu te poses, tu te prépares intérieurement. Objectif : quand tu reprends la parole, TU es déjà en état.</div>
+  <div class="note">Physiologie : après un effort intense, le corps veut se relâcher. C'est le contraste que tu vas exploiter. Plus le yoga est dynamique, plus la descente en phase 3 sera rapide et profonde.</div>
+  <div class="note">À caler avec Nat : postures d'ouverture (cœur, hanches), séquence dynamique type salutations, finir debout ou assis — qu'ils puissent s'allonger ensuite facilement.</div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 3 ═══════════════════════════ -->
+<section class="phase" id="phase-3">
+  <div class="phase-header">
+    <div class="phase-num">3</div>
+    <div class="phase-title">
+      <h2>Transition + Breathwork</h2>
+      <p class="time">8 min · Toi</p>
+    </div>
+  </div>
+
+  <div class="note">Pont physiologique entre le corps (yoga) et l'esprit (hypnose). Breathwork accéléré pour créer une légère hypocapnie → ralentissement auto de la fréquence respiratoire = porte d'entrée de la transe (Charbonnier).</div>
+  <div class="note">Tu donnes le rythme à voix haute. La contagion respiratoire (Le Bon) amplifie l'effet.</div>
+
+  <div class="subsection">
+    <h3>Installation · 1 min</h3>
+    <p class="voix">Merci Nat. Maintenant, allongez-vous sur le dos. Prenez votre couverture, votre plaid — vous allez rester longtemps sans bouger, le corps va se refroidir.</p>
+    <p class="voix">Trouvez la position dans laquelle votre corps peut se relâcher complètement. Les bras le long du corps, paumes vers le ciel si vous êtes à l'aise. Les pieds qui tombent naturellement sur les côtés.</p>
+    <p class="voix">Fermez les yeux.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Breathwork rythmé · 5 min</h3>
+    <p class="voix">Vous venez de solliciter votre corps. Sentez le contraste entre le mouvement et l'immobilité. Savourez.</p>
+    <p class="voix">Maintenant, nous allons respirer ensemble. Je donne le rythme.</p>
+    <p class="voix">Inspirez par le nez en gonflant le ventre... 1... 2... 3... 4...</p>
+    <p class="voix">Retenez... 1... 2...</p>
+    <p class="voix">Expirez par la bouche, lentement... 1... 2... 3... 4... 5... 6...</p>
+    <p class="pause">( 5 cycles à ce rythme, voix posée )</p>
+    <p class="voix">Maintenant, on accélère légèrement. Inspirations plus amples, expirations plus rapides.</p>
+    <p class="voix">Inspirez... expirez. Inspirez... expirez. Inspirez... expirez.</p>
+    <p class="pause">( 8-10 cycles rapides mais pas épuisants — guidés à voix haute )</p>
+    <p class="voix">Très bien. Et maintenant... on ralentit. On ralentit encore. On ralentit.</p>
+    <p class="voix">Laissez votre respiration revenir à son rythme naturel. Lente. Régulière. Profonde.</p>
+    <p class="voix">Observez simplement ce mouvement, calme et tranquille.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Lâcher · 2 min</h3>
+    <p class="voix">À chaque expiration, votre corps s'enfonce un peu plus dans le sol. Il devient plus lourd. Plus détendu.</p>
+    <p class="voix">Vous n'avez rien à faire. Rien à contrôler. Juste respirer... et vous laisser descendre.</p>
+  </div>
+
+  <div class="planB">
+    <div class="planB-header">🛟 PLAN B — Si perturbation<span class="chevron">▼</span></div>
+    <div class="planB-body">
+      <div class="planB-item"><span class="planB-label">Quelqu'un a un vertige</span><div class="planB-phrase">« Revenez simplement à une respiration naturelle. Tout se remet en place. »</div></div>
+      <div class="planB-item"><span class="planB-label">Quelqu'un tousse / hyperventile trop</span><div class="planB-phrase">« C'est parfait, votre corps libère ce qu'il a à libérer. Laissez passer. »</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 4 ═══════════════════════════ -->
+<section class="phase" id="phase-4">
+  <div class="phase-header">
+    <div class="phase-num">4</div>
+    <div class="phase-title">
+      <h2>Induction — escalier vers la porte</h2>
+      <p class="time">18 min · Toi</p>
+    </div>
+  </div>
+
+  <div class="note">Cœur HT + signature « Porte des Rêves ». Structure : yes set → corps → boîte → concentration → ancrage → connexion → coque → escalier → porte.</div>
+  <div class="note">Bascule ponctuelle « vous » → « nous » aux moments clés. Le « nous » crée l'âme collective de Le Bon.</div>
+  <div class="note">Mots-boutons Le Bon saupoudrés : lumière, paix, sécurité, racines, porte.</div>
+
+  <div class="subsection">
+    <h3>Yes Set — ouverture ericksonienne · 30 sec</h3>
+    <div class="note">Technique Erickson : 3 affirmations que chaque participant ne peut QUE valider intérieurement → crée une tendance d'acquiescement. La 1re suggestion qui suit est acceptée sans résistance. Parfait en groupe : le « oui collectif » synchronise tout le monde.</div>
+    <div class="note">Voix lente, ton qui affirme (pas qui interroge). Petite pause de 2 sec après chaque phrase — laisse le « oui » intérieur se poser.</div>
+    <p class="voix">Vous êtes allongé, confortablement.</p>
+    <p class="pause">( 2 sec )</p>
+    <p class="voix">Vous entendez ma voix, claire et posée.</p>
+    <p class="pause">( 2 sec )</p>
+    <p class="voix">Vous sentez votre respiration qui ralentit, naturellement.</p>
+    <p class="pause">( 2 sec )</p>
+    <p class="voix">Voilà.</p>
+    <p class="pause">( 3 sec )</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Relaxation du corps · 3 min</h3>
+    <p class="voix">Et maintenant, nous allons détendre votre corps, encore plus profondément.</p>
+    <p class="voix">Concentrez-vous sur vos pieds. Laissez-les se détendre. Jusqu'à la pointe des orteils.</p>
+    <p class="voix">Laissez cette sensation de détente remonter vers les mollets. Les cuisses. Les hanches se relâchent.</p>
+    <p class="voix">C'est au tour du bas du dos. La détente remonte jusqu'aux omoplates. Se diffuse dans la nuque.</p>
+    <p class="voix">Relâchez le ventre. Laissez la relaxation se diffuser dans la poitrine. Dans le cou. Dans les épaules.</p>
+    <p class="voix">La détente chemine le long des bras. Des avant-bras. Jusqu'aux mains. Et relâche chacun des doigts.</p>
+    <p class="voix">Concentrez-vous sur la tête. Le cuir chevelu se relâche. Le front se lisse. Les paupières sont lourdes. Les sourcils se détendent. La zone entre les deux sourcils se lisse.</p>
+    <p class="voix">Les tempes. Les joues. Détendez les lèvres. Relâchez le menton. Et surtout — relâchez bien la mâchoire.</p>
+    <p class="voix">Ressentez les ondes de relaxation qui se diffusent dans tout le corps. Comme une douche de détente qui s'écoule depuis le sommet de la tête, sur les épaules, le long du corps, jusqu'aux pieds.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>La boîte · 2 min</h3>
+    <div class="note">Relaxation mentale. Image-métaphore puissante — le groupe visualise simultanément.</div>
+    <p class="voix">Il y a deux façons de se détendre. Physiquement. Et mentalement. Maintenant que votre corps est détendu, nous allons détendre le mental.</p>
+    <p class="voix">Imaginez une grande boîte. Du matériau et de la couleur de votre choix. Simple ou ornementée. Prenez un instant pour la voir.</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Dans cette boîte, vous allez déposer. Déposez tous vos soucis. Déposez toutes vos préoccupations. Vos problèmes. Votre to-do list. Vous pouvez même y déposer votre mental.</p>
+    <p class="voix">Cette boîte est assez grande pour tout contenir. Prenez le temps.</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Quand vous avez tout déposé, fermez la boîte. De la manière que vous voulez. Un cadenas, un ruban, de la cire. Fermez-la bien.</p>
+    <p class="voix">Cette boîte est magique. Elle reste fermée pendant toute l'expérience. Vous pourrez récupérer ce que vous voulez après — si vous le voulez.</p>
+    <p class="voix">Pour l'instant, profitez de cet allègement. Sentez comme c'est bon de poser tout ça.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Concentration + ratification · 30 sec</h3>
+    <div class="note">Anticipe les bruits. Utilise-les comme approfondisseur.</div>
+    <p class="voix">Et s'il y a du bruit autour de vous, dans la pièce, ou dehors, ce ne sont que des bruits naturels. Plus vous les entendez, plus vous descendez profondément en vous. Chaque son vous enfonce un peu plus dans la détente.</p>
+    <p class="voix">Concentrez-vous simplement sur ma voix. Plus vous écoutez ma voix, plus vous entrez dans un état profond et sain.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Ancrage à la Terre · 2 min</h3>
+    <div class="note">Vocabulaire adouci : « la Terre » au lieu de « Terre-Mère ».</div>
+    <p class="voix">Et maintenant, portez votre attention sur la plante de vos pieds.</p>
+    <p class="voix">Imaginez que de grosses racines sortent de vos pieds, et s'enfoncent profondément dans la Terre. Des racines solides. Puissantes. Elles descendent, elles descendent encore, jusqu'au cœur de la Terre.</p>
+    <p class="voix">Et quand vos racines arrivent au cœur de la Terre, une énergie douce commence à remonter. Elle remonte le long de vos racines. Elle arrive à vos pieds. Elle se diffuse dans vos jambes. Dans votre bassin. Dans tout votre corps.</p>
+    <p class="voix">Sentez-vous profondément ancré. Profondément enraciné. En sécurité.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Connexion à ce qui vous dépasse · 2 min</h3>
+    <div class="note">Vocabulaire adouci : « plus grand que vous » au lieu de « plans supérieurs ».</div>
+    <p class="voix">Maintenant, portez votre attention au sommet de votre tête.</p>
+    <p class="voix">Imaginez qu'au-dessus de vous, descend un grand canal de Lumière blanche. Un canal qui vous relie à quelque chose de plus grand que vous. Appelez ça comme vous voulez. L'Univers. La Vie. Votre sagesse. Peu importe.</p>
+    <p class="voix">Ce canal de Lumière arrive au sommet de votre tête. Il se diffuse doucement dans tout votre corps, en redescendant.</p>
+    <p class="voix">Et maintenant, vous êtes relié aux deux. À la Terre en bas. À ce qui vous dépasse en haut. Vous êtes entre les deux. Soutenu, guidé, en sécurité.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Coque de protection · 1 min</h3>
+    <p class="voix">Imaginez-vous maintenant entouré d'une magnifique bulle de Lumière blanche. Votre corps tout entier est à l'intérieur.</p>
+    <p class="voix">Cette bulle, c'est votre coque de protection. Elle vous protège de tout. Mentalement, physiquement, émotionnellement. Elle reste autour de vous pendant toute l'expérience. Et elle reste disponible pour vous, après. Chaque fois que vous en aurez besoin.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>L'escalier · 3 min</h3>
+    <div class="note">Approfondissement par décompte — ta signature. Descente 10→1 avec suggestion de plus en plus profonde. Rythme ralenti à chaque nombre.</div>
+    <p class="voix">Maintenant, imaginez un grand et bel escalier qui descend devant vous. Il peut être droit, en colimaçon, courbé. Du matériau et de la couleur de votre choix. Prenez un instant pour le voir.</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Cet escalier, c'est l'escalier qui vous mène à la partie la plus profonde, la plus sage de vous-même. Il est bien éclairé. Il est en parfaite sécurité.</p>
+    <p class="voix">Dans un instant, je vais compter à rebours de 10 à 1. À chaque nombre, vous descendez une marche. Et à chaque marche, vous allez plus profondément à l'intérieur de vous-même. Et à 1, vous serez dans un état d'hypnose parfait.</p>
+    <p class="voix">Nous descendons ensemble.</p>
+    <p class="voix">10... Vous commencez à descendre. En parfaite sécurité.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">9... Plus profondément à l'intérieur de vous.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">8... Encore plus profondément.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">7... Parfaitement détendu.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">6... Vous continuez à descendre.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">5... À mi-chemin. Vous êtes déjà très loin en vous-même.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">4... Encore plus profondément.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">3... Profond. Très profond.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">2... De plus en plus profondément.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">1... Vous êtes maintenant dans un état d'hypnose parfait. Un état profond et sain.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>La porte · 2 min</h3>
+    <div class="note">Le motif de marque. Pivot du script : c'est là que commence le vrai voyage.</div>
+    <p class="voix">Et maintenant, devant vous, au bas de l'escalier... se trouve une porte.</p>
+    <p class="voix">Prenez un instant pour la voir. Elle est là, juste devant vous. Elle peut être en bois, en métal, en cristal, en lumière. Ornée ou toute simple. Massive ou légère. Peu importe. C'est VOTRE porte.</p>
+    <p class="voix">Regardez-la. Est-ce qu'elle a un heurtoir ? Une poignée ? Est-ce que la lumière filtre à travers ?</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Cette porte, c'est le seuil de votre espace intérieur. Derrière elle, se trouve la partie la plus sage de vous-même. Celle qui vous connaît parfaitement. Celle qui vous guide, au quotidien, par cette petite voix intérieure.</p>
+    <p class="voix">Derrière cette porte, toutes les réponses que vous cherchez sont déjà là. Elles n'attendent que vous.</p>
+  </div>
+
+  <div class="planB">
+    <div class="planB-header">🛟 PLAN B — Si perturbation<span class="chevron">▼</span></div>
+    <div class="planB-body">
+      <div class="planB-item"><span class="planB-label">Bruit extérieur fort (voiture, porte)</span><div class="planB-phrase">« Et ce son que vous entendez, peu importe ce qu'il est, votre inconscient sait exactement quoi en faire. Il l'utilise pour vous enfoncer encore plus profondément. »</div></div>
+      <div class="planB-item"><span class="planB-label">Quelqu'un tousse</span><div class="planB-phrase">« Les corps parlent parfois. C'est normal. Restez avec votre propre respiration, votre propre espace. »</div></div>
+      <div class="planB-item"><span class="planB-label">Trou de mémoire</span><div class="planB-phrase">( Silence délibéré 3-5 sec ) « Et dans ce silence... allez encore plus profondément... »</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 5 ═══════════════════════════ -->
+<section class="phase" id="phase-5">
+  <div class="phase-header">
+    <div class="phase-num">5</div>
+    <div class="phase-title">
+      <h2>La question existentielle · station silencieuse</h2>
+      <p class="time">15 min · Toi puis musique</p>
+    </div>
+  </div>
+
+  <div class="note">LE moment clé. Formulation Charbonnier adaptée : on n'envoie pas dans un tunnel vers l'au-delà, on envoie dans SON espace intérieur. Mais on garde l'archétype du passage vers la lumière.</div>
+  <div class="note">5 min guidées + 10 min de silence musical (la vraie « station » façon Charbonnier).</div>
+
+  <div class="subsection">
+    <h3>Franchir la porte · 2 min</h3>
+    <p class="voix">Maintenant, quand vous êtes prêt, posez votre main sur la porte.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">Dans un instant, je vais compter jusqu'à 3. Et à 3, nous poussons la porte ensemble.</p>
+    <p class="voix">1... Vous sentez la poignée, ou le bois, sous votre main.</p>
+    <p class="voix">2... Vous inspirez. Vous savez que vous êtes en sécurité.</p>
+    <p class="voix">3... Nous poussons la porte. Elle s'ouvre. Vous entrez.</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Vous êtes maintenant dans un espace sacré. Votre espace.</p>
+    <p class="voix">Prenez un instant pour le découvrir. Peut-être est-ce un paysage. Une pièce. Une lumière. Peut-être ne voyez-vous rien de précis, mais vous sentez quelque chose. Une présence. Une chaleur. Une paix.</p>
+    <p class="voix">Tout est juste. Tout ce que vous percevez est juste.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Poser la question · 1 min 30</h3>
+    <p class="voix">Dans cet espace, vous n'êtes pas seul. La partie la plus sage de vous-même est là, tout près. Vous pouvez la ressentir. Peut-être comme une présence bienveillante. Peut-être comme une lumière plus douce. Peut-être simplement comme une sensation dans le corps.</p>
+    <p class="voix">Maintenant, rappelez-vous votre question. Celle que vous avez préparée. Celle que vous portez.</p>
+    <p class="voix">Formulez-la intérieurement, avec clarté. Depuis le cœur, pas depuis la tête. Comme si vous la confiiez à un ami de confiance.</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Et maintenant... écoutez. Juste écoutez.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Le silence · 10 min</h3>
+    <div class="note">Lance la musique hypnotique (nappes profondes, infrabasses si possible — inspiration Charbonnier). Tu te tais VRAIMENT pendant 10 min. Surveille discrètement le timer.</div>
+    <div class="note">Entre-toi-même en état pendant ce temps. Ta propre transe porte le groupe par résonance.</div>
+    <p class="voix">Je vais me taire pendant quelques minutes. Accueillez la première chose qui vient. Une image. Un mot. Une émotion. Une sensation. Une intuition. Un silence. Ne jugez pas. Accueillez.</p>
+    <p class="voix">Si rien ne vient, c'est juste aussi. Votre sagesse a ses propres rythmes. Faites confiance.</p>
+    <p class="pause big">━━━ 10 MINUTES DE SILENCE MUSICAL ━━━</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Retour doux · 1 min 30</h3>
+    <p class="voix">Doucement, je reviens vers vous.</p>
+    <p class="voix">Vous êtes toujours dans votre espace. Vous êtes toujours en état profond.</p>
+    <p class="voix">Remerciez intérieurement cette partie sage de vous-même. Pour ce qui a été reçu — ou pour ce qui est simplement en train de germer.</p>
+    <p class="pause">( 5 sec )</p>
+  </div>
+
+  <div class="planB">
+    <div class="planB-header">🛟 PLAN B — Si perturbation<span class="chevron">▼</span></div>
+    <div class="planB-body">
+      <div class="planB-item"><span class="planB-label">Quelqu'un sanglote</span><div class="planB-phrase">« Des émotions émergent parfois. C'est sain. Laissez passer tout ce qui doit passer. Vous êtes en sécurité. »</div></div>
+      <div class="planB-item"><span class="planB-label">Quelqu'un rit nerveusement</span><div class="planB-phrase">« Le rire est aussi une forme de lâcher-prise. Tout ce qui émerge est juste. »</div></div>
+      <div class="planB-item"><span class="planB-label">Silence dense, le groupe part loin</span><div class="planB-phrase">« C'est ça... je sens que le groupe entier descend... ensemble... nous sommes dans le même espace maintenant... »</div></div>
+      <div class="planB-item"><span class="planB-label">Résistance du groupe (tensions)</span><div class="planB-phrase">« Certains d'entre vous ont peut-être l'impression que ça ne marche pas. C'est votre mental qui parle. Et c'est exactement le signe que quelque chose se passe. Continuez à respirer. »</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 6 ═══════════════════════════ -->
+<section class="phase" id="phase-6">
+  <div class="phase-header">
+    <div class="phase-num">6</div>
+    <div class="phase-title">
+      <h2>Manifestation — filet de sécurité</h2>
+      <p class="time">8 min · Toi</p>
+    </div>
+  </div>
+
+  <div class="note">Couvre les 3 cas : réponse reçue / réponse subtile / rien. Formulation validée.</div>
+  <div class="note">Principe : ceux qui ont reçu ancrent leur réponse. Ceux qui n'ont rien reçu manifestent leur « version qui sait ». Personne n'est en échec.</div>
+
+  <div class="subsection">
+    <h3>Transition qui couvre tout le monde · 1 min 30</h3>
+    <p class="voix">Peut-être avez-vous reçu une réponse claire. Une image, un mot, une sensation, une intuition.</p>
+    <p class="voix">Peut-être quelque chose de plus subtil, que vous mettrez du temps à décrypter.</p>
+    <p class="voix">Peut-être rien de tangible pour l'instant. Et c'est parfait aussi — votre sagesse a ses propres rythmes. Parfois la réponse arrive dans les jours, les semaines qui suivent. Parfois même au moment exact où vous en aurez besoin.</p>
+    <p class="voix">Dans tous les cas, vous allez maintenant planter une graine.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>La version qui sait · 3 min</h3>
+    <p class="voix">Pensez à votre question. Et maintenant, imaginez... la version de vous qui, elle, connaît déjà la réponse. La version la plus alignée. La plus en paix. La plus confiante.</p>
+    <p class="voix">Voyez cette version de vous. Comment se tient-elle ? Comment respire-t-elle ? Quel regard porte-t-elle sur le monde ?</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Maintenant, entrez dans cette version de vous. Glissez-vous dedans, comme on enfile un vêtement.</p>
+    <p class="voix">Vous êtes cette version. Ressentez-la dans votre corps. Les épaules qui se posent. La respiration qui se pose. Le cœur qui s'ouvre.</p>
+    <p class="voix">Qu'est-ce que vous ressentez ? De la joie ? De la paix ? De la force ? De la gratitude ?</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Amplifiez cette sensation. Rendez-la plus intense. Plus vive.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Ancrage corporel · 2 min</h3>
+    <div class="note">Le « où dans le corps » rend la manifestation tangible et récupérable après.</div>
+    <p class="voix">Maintenant, choisissez un endroit de votre corps où cette sensation se dépose le plus fort. Peut-être le cœur. Peut-être le ventre. Peut-être les mains. Peut-être ailleurs.</p>
+    <p class="voix">Posez votre attention à cet endroit. Et posez l'intention : cette sensation reste ici. Gravée. Comme une graine qui va germer. À votre rythme. Quand ce sera juste.</p>
+    <p class="pause">( 5 sec )</p>
+    <p class="voix">Chaque fois que vous en aurez besoin dans votre vie, vous pourrez revenir à cet endroit de votre corps. Et la sensation reviendra. C'est votre ancre.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Retour au souffle · 1 min 30</h3>
+    <p class="voix">Très bien. Maintenant laissez cette sensation se diffuser dans tout le corps. Elle imprègne chaque cellule.</p>
+    <p class="voix">Vous êtes toujours dans votre espace intérieur. Toujours en état profond. Toujours en sécurité.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 7 ═══════════════════════════ -->
+<section class="phase" id="phase-7">
+  <div class="phase-header">
+    <div class="phase-num">7</div>
+    <div class="phase-title">
+      <h2>Harmonisation des centres d'énergie</h2>
+      <p class="time">8 min · Toi (+ bol tibétain optionnel)</p>
+    </div>
+  </div>
+
+  <div class="note">Traversée 7 chakras en version compressée. Tu peux accompagner avec de légers coups de bol tibétain à chaque centre pour ajouter une dimension sensorielle.</div>
+  <div class="note">Vocabulaire : « harmoniser » et non « nettoyer ».</div>
+
+  <p class="voix">Et maintenant, nous allons harmoniser vos centres d'énergie. Un par un.</p>
+  <p class="voix">Imaginez une belle sphère de Lumière qui descend depuis le sommet de votre tête, et qui va traverser votre corps.</p>
+
+  <div class="note">Ralentis à chaque centre. Le bol peut sonner à chaque couleur si tu le gères.</div>
+
+  <p class="voix">D'abord, à la base de votre colonne vertébrale. Une lumière rouge. Chaude. Stable. Elle harmonise votre ancrage. Votre sécurité.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">La lumière remonte au niveau du bas du ventre. Elle devient orange. Douce. Elle équilibre votre créativité. Vos émotions.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">Au niveau du plexus solaire, la lumière devient jaune. Comme un soleil intérieur. Elle harmonise votre confiance. Votre puissance.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">Au niveau du cœur, la lumière devient verte. Tendre. Vaste. Elle ouvre votre cœur. L'amour que vous portez. L'amour que vous donnez.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">Au niveau de la gorge, la lumière devient bleue. Claire. Pure. Elle libère votre expression. Votre vérité.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">Au niveau du front, entre les deux sourcils, la lumière devient indigo. Profonde. Elle éveille votre intuition. Votre vision intérieure.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">Et au sommet de la tête, la lumière devient violette, puis blanche, éclatante. Elle vous relie à ce qui vous dépasse.</p>
+  <p class="pause">( 5 sec )</p>
+  <p class="voix">Tous vos centres sont maintenant harmonisés. Alignés. Ressentez cette colonne de Lumière qui traverse tout votre être. De la Terre au ciel.</p>
+</section>
+
+<!-- ═══════════════════════════ PHASE 8 ═══════════════════════════ -->
+<section class="phase" id="phase-8">
+  <div class="phase-header">
+    <div class="phase-num">8</div>
+    <div class="phase-title">
+      <h2>Soin sonore — effet kiss cool</h2>
+      <p class="time">15 min (2' amorce + 13' musique)</p>
+    </div>
+  </div>
+
+  <div class="note">Amorce parlée 2 min (plante la graine du soin auto) + 13 min de musique/bols seuls. L'inconscient fait le travail.</div>
+  <div class="note">Tu peux jouer du bol tibétain en live pendant une partie de la musique — ça amplifie l'immersion et te reconnecte à ta propre transe.</div>
+
+  <div class="subsection">
+    <h3>Amorce « kiss cool » · 2 min</h3>
+    <p class="voix">Et maintenant, votre corps va recevoir.</p>
+    <p class="voix">Pendant que la musique va vous porter, votre inconscient — cette partie de vous qui sait exactement ce dont vous avez besoin — va utiliser ces vibrations pour aller soigner ce qui a besoin d'être soigné.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">Là où il y a une tension, la vibration va la dissoudre.</p>
+    <p class="voix">Là où il y a une blessure ancienne, la vibration va la réparer.</p>
+    <p class="voix">Là où il y a une fatigue, la vibration va la recharger.</p>
+    <p class="voix">Là où il y a un déséquilibre, la vibration va le réaligner.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">Vous n'avez rien à faire. Rien à comprendre. Rien à chercher.</p>
+    <p class="voix">Laissez simplement votre corps recevoir ce dont il a besoin.</p>
+    <p class="voix">Nous recevons ensemble.</p>
+    <p class="voix">Je me tais maintenant. La musique prend le relais. Votre corps sait.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Silence musical · 13 min</h3>
+    <p class="pause big">━━━ 13 MINUTES DE MUSIQUE / BOLS / NAPPES ━━━</p>
+    <div class="note">Tu peux intervenir 1-2 fois très doucement pour ratifier : « voilà... c'est ça... recevez... » si le groupe a l'air de décrocher.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 9 ═══════════════════════════ -->
+<section class="phase" id="phase-9">
+  <div class="phase-header">
+    <div class="phase-num">9</div>
+    <div class="phase-title">
+      <h2>Exduction + égrégore de remerciement</h2>
+      <p class="time">8 min · Toi</p>
+    </div>
+  </div>
+
+  <div class="note">Égrégore Charbonnier adapté (remerciement collectif) + exduction Dolores Cannon revisitée + fermeture douce de la porte.</div>
+
+  <div class="subsection">
+    <h3>🔔 La cloche</h3>
+    <div class="note">Un tintement léger de la clochette — signal doux de retour qu'ils reconnaîtront.</div>
+    <p class="ring">🔔</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Égrégore de remerciement · 1 min 30</h3>
+    <p class="voix">Avec beaucoup de gratitude, nous remercions maintenant.</p>
+    <p class="voix">Nous remercions la partie la plus sage de chacun de nous. Pour tout ce qui a été reçu aujourd'hui — qu'on en ait conscience ou non.</p>
+    <p class="voix">Nous remercions pour les réponses claires. Pour les intuitions subtiles. Pour les soins silencieux. Pour les graines plantées.</p>
+    <p class="voix">Toutes les informations reçues sont précieuses. Vous les intégrerez de la meilleure façon qui soit, mentalement, physiquement, émotionnellement. À votre rythme.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Refermer la porte · 1 min</h3>
+    <div class="note">Motif marque « Porte des Rêves ». La porte reste accessible, on la referme juste.</div>
+    <p class="voix">Maintenant, doucement, vous quittez votre espace intérieur. Vous repassez le seuil de votre porte.</p>
+    <p class="voix">Vous refermez doucement la porte derrière vous. Mais — écoutez bien — elle reste accessible pour vous. Chaque fois que vous aurez besoin de retourner à cet espace, vous saurez comment faire. Elle est à vous.</p>
+    <p class="voix">Vous êtes de retour sur l'escalier. Vous commencez à remonter.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Remontée + reconnexion · 3 min</h3>
+    <p class="voix">Nous remontons ensemble.</p>
+    <p class="voix">Je veux que vous vous souveniez : votre vie présente est la vie la plus importante. C'est celle sur laquelle vous vous concentrez, maintenant.</p>
+    <p class="voix">Dans un instant, je vais compter de 1 à 10. À 10, vous serez de retour, parfaitement réveillé, frais et reposé, comme après une très bonne nuit de sommeil.</p>
+    <p class="voix">1, 2... Vous prenez une grande respiration. Votre sang circule plus vite. Vous commencez à revenir.</p>
+    <p class="voix">3, 4... Vous prenez conscience des sons dans la pièce. Vous vous reconnectez à votre environnement. Ici. Maintenant.</p>
+    <p class="voix">5, 6... Vous reconnectez à votre corps. Bougez doucement les pieds. Les mains. Étirez-vous.</p>
+    <p class="voix">7, 8... Vous émergez agréablement. Vous pouvez ouvrir les yeux quand vous êtes prêt — pas de précipitation.</p>
+    <p class="voix">9, 10... Vous êtes parfaitement réveillé. De retour. Et vous vous sentez merveilleusement bien.</p>
+    <p class="voix">Prenez votre temps. Rien ne presse.</p>
+  </div>
+
+  <div class="planB">
+    <div class="planB-header">🛟 PLAN B — Si perturbation<span class="chevron">▼</span></div>
+    <div class="planB-body">
+      <div class="planB-item"><span class="planB-label">Quelqu'un reste « parti » plus longtemps</span><div class="planB-phrase">Ne pas paniquer. Approche-toi doucement. « Prenez votre temps, revenez à votre rythme. Vous êtes en sécurité. » Touche légèrement son épaule si tu le sens. Ça revient toujours.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PHASE 10 ═══════════════════════════ -->
+<section class="phase" id="phase-10">
+  <div class="phase-header">
+    <div class="phase-num">10</div>
+    <div class="phase-title">
+      <h2>Cercle de partage</h2>
+      <p class="time">13 min · Toi (posture anti-gourou)</p>
+    </div>
+  </div>
+
+  <div class="note">Tu DISTRIBUES PAPIERS + STYLOS dès la reprise. Consigne Charbonnier : jet premier avant que le mental censure.</div>
+  <div class="note">Tu animes en posture anti-gourou : tu n'interprètes jamais, tu renvoies à leur cœur.</div>
+
+  <div class="subsection">
+    <h3>Jet premier · 2 min</h3>
+    <p class="voix">Avant de parler, avant de réfléchir — prenez une feuille, un stylo, et notez.</p>
+    <p class="voix">Les trois premiers mots qui vous viennent. Ou les trois premières phrases. Sans réfléchir. Sans chercher à faire joli. Sans juger.</p>
+    <p class="voix">Ce qui émerge MAINTENANT est précieux — parce que dans 5 minutes, votre mental aura déjà commencé à tout analyser. Vite. Écrivez.</p>
+    <p class="pause">( 2 min de silence pendant qu'ils écrivent )</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Ouverture du cercle · 1 min</h3>
+    <p class="voix">Bienvenue de retour. Comment vous sentez-vous ?</p>
+    <p class="voix">Si vous le souhaitez, vous pouvez partager votre expérience avec le groupe. Il n'y a aucune obligation. Il n'y a pas de bonne ou de mauvaise expérience.</p>
+    <p class="voix">Certains d'entre vous ont peut-être ressenti quelque chose de très fort. D'autres, quelque chose de plus subtil. D'autres, peut-être rien pour l'instant — et c'est juste aussi.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Pendant le partage · 10 min</h3>
+    <div class="note">Tu écoutes. Tu n'interprètes jamais. Tu peux remercier, tu peux refléter doucement (« j'entends que... »). Si on te demande ce que ça veut dire : rends-leur leur pouvoir.</div>
+    <div class="note">Phrases-clés de posture Charbonnier, à avoir en tête :</div>
+    <div class="note">→ « Je n'en sais rien. Je n'ai pas la réponse. C'est vous qui l'avez dans votre cœur. »</div>
+    <div class="note">→ « Ne négligez pas vos sensations. Si vous n'avez eu que ça, ça veut dire que c'est important. »</div>
+    <div class="note">→ Si quelqu'un dit qu'il n'a rien vu : « Beaucoup de choses peuvent remonter dans les jours, les semaines, les mois qui viennent. Votre sagesse vous envoie les réponses au moment où vous en avez besoin. »</div>
+  </div>
+
+  <div class="subsection">
+    <h3>Clôture · 1 min</h3>
+    <p class="voix">Merci à vous tous. Pour votre présence. Pour votre confiance.</p>
+    <p class="voix">Vous repartez avec quelque chose. Peut-être une réponse. Peut-être une graine. Peut-être simplement un état.</p>
+    <p class="voix">Hydratez-vous bien aujourd'hui — votre corps a beaucoup travaillé. Évitez de conduire tout de suite, attendez 15-20 min. Et soyez attentif dans les jours qui viennent : des choses peuvent remonter à la surface. C'est normal. C'est la suite du voyage.</p>
+    <p class="voix">J'espère que cette expérience restera dans votre cœur longtemps, et qu'elle vous aidera à avancer sur votre chemin.</p>
+    <p class="pause">( et tu laisses le silence te dire quand c'est fini )</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ ANNEXES ═══════════════════════════ -->
+<section class="phase" id="annexes">
+  <div class="phase-header">
+    <div class="phase-num">✦</div>
+    <div class="phase-title">
+      <h2>Annexes</h2>
+      <p class="time">À avoir en tête, pas à lire</p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>Règle d'or Erickson</h3>
+    <p class="voix">« C'est bien. » / « Voilà. » / « C'est ça. »</p>
+    <div class="note">Ces trois phrases ratifient implicitement TOUT ce qui se passe, même si tu ne sais pas ce qui se passe. À dégainer librement.</div>
+  </div>
+
+  <div class="subsection">
+    <h3>Si tu es perdu dans le timing</h3>
+    <div class="note">Le bon timing, c'est celui qui laisse le groupe respirer — pas celui qui colle à la montre.</div>
+    <div class="note">Si en retard : supprimer les pauses intermédiaires, aller direct à la consigne suivante. Les participants ne remarquent jamais que tu as coupé 5 min.</div>
+    <div class="note">Si en avance : étirer les silences. Jamais improviser du texte en plus, risque de décaler.</div>
+  </div>
+
+  <div class="subsection">
+    <h3>Ancrage pré-séance pour toi</h3>
+    <div class="note">30 min avant l'arrivée du groupe : assieds-toi dans la salle silencieuse. 3 respirations profondes. Visualise ton escalier, ta porte. Descends 30 secondes. Remonte. Tu sais que tu y vas, tu sais que tu sais. Prêt.</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ───── Taille police ─────
+let baseSize = parseInt(localStorage.getItem('baseSize') || '20');
+function applyFontSize() {
+  document.documentElement.style.setProperty('--base-size', baseSize + 'px');
+  localStorage.setItem('baseSize', baseSize);
+}
+applyFontSize();
+document.getElementById('btnFont+').onclick = () => { baseSize = Math.min(32, baseSize + 2); applyFontSize(); };
+document.getElementById('btnFont-').onclick = () => { baseSize = Math.max(14, baseSize - 2); applyFontSize(); };
+
+// ───── Mode lecture (cache notes) ─────
+const btnReading = document.getElementById('btnReading');
+const readingMode = localStorage.getItem('readingMode') === 'true';
+if (readingMode) { document.body.classList.add('reading-mode'); btnReading.classList.add('active'); }
+btnReading.onclick = () => {
+  document.body.classList.toggle('reading-mode');
+  btnReading.classList.toggle('active');
+  localStorage.setItem('readingMode', document.body.classList.contains('reading-mode'));
+};
+
+// ───── Toggle sidebar ─────
+const sidebar = document.getElementById('sidebar');
+const main = document.getElementById('main');
+const btnSidebar = document.getElementById('btnSidebar');
+const toggleSidebar = document.getElementById('toggleSidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
+function updateSidebar(hidden) {
+  if (isMobile()) {
+    // Mobile : overlay off-canvas
+    const open = !hidden;
+    sidebar.classList.toggle('open', open);
+    sidebarOverlay.classList.toggle('active', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  } else {
+    // Desktop : classe 'hidden' classique
+    sidebar.classList.toggle('hidden', hidden);
+    main.classList.toggle('full', hidden);
+    btnSidebar.classList.toggle('active', hidden);
+    localStorage.setItem('sidebarHidden', hidden);
+  }
+}
+
+// État initial (desktop uniquement — sur mobile la sidebar est cachée par défaut)
+if (!isMobile() && localStorage.getItem('sidebarHidden') === 'true') updateSidebar(true);
+
+btnSidebar.onclick = () => {
+  if (isMobile()) updateSidebar(!sidebar.classList.contains('open'));
+  else updateSidebar(!sidebar.classList.contains('hidden'));
+};
+toggleSidebar.onclick = () => updateSidebar(false); // ouvre
+sidebarOverlay.onclick = () => updateSidebar(true); // ferme
+// Fermer auto au click sur un lien (mobile)
+document.querySelectorAll('.nav-list a').forEach(a => {
+  a.addEventListener('click', () => { if (isMobile()) updateSidebar(true); });
+});
+
+// ───── Plein écran ─────
+document.getElementById('btnFull').onclick = () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+};
+
+// ───── Plan B collapse ─────
+document.querySelectorAll('.planB-header').forEach(h => {
+  h.onclick = () => h.parentElement.classList.toggle('collapsed');
+});
+// Collapse all plan B by default
+document.querySelectorAll('.planB').forEach(p => p.classList.add('collapsed'));
+
+// ───── Progress bar ─────
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const max = h.scrollHeight - h.clientHeight;
+  progressBar.style.width = (h.scrollTop / max * 100) + '%';
+});
+
+// ───── Active nav on scroll ─────
+const navLinks = document.querySelectorAll('.nav-list a');
+const sections = document.querySelectorAll('.phase, .cover');
+const setActive = () => {
+  let current = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 200;
+    if (window.scrollY >= top) current = s.id;
+  });
+  navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+};
+window.addEventListener('scroll', setActive);
+setActive();
+</script>
+
+</body>
+</html>
