@@ -661,6 +661,10 @@
     letter-spacing: 2px;
   }
   .timer-display.running { color: #4ade80; }
+  .timer-display.small {
+    font-size: 22px;
+    padding: 3px 0;
+  }
   .timer-controls {
     display: flex;
     justify-content: center;
@@ -755,11 +759,108 @@
     align-items: center;
     gap: 4px;
     flex-wrap: wrap;
+    margin-bottom: 8px;
   }
-  .volume-slider {
-    width: 100%;
-    margin-top: 4px;
+
+  /* Favoris YouTube */
+  .yt-fav-add {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
   }
+  .yt-fav-add input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: inherit;
+    min-width: 0;
+  }
+  .yt-fav-add button {
+    background: var(--gold-soft);
+    border: none;
+    color: var(--bg);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .yt-fav-list {
+    list-style: none;
+    margin: 0; padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .yt-fav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+    background: var(--bg-elevated);
+    transition: background 0.2s;
+  }
+  .yt-fav-item:hover { background: rgba(212, 169, 74, 0.1); }
+  .yt-fav-play {
+    background: var(--gold-soft);
+    border: none;
+    color: var(--bg);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .yt-fav-play:hover { background: var(--gold); }
+  .yt-fav-title {
+    flex: 1;
+    font-size: 11px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+  .yt-fav-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+  }
+  .yt-fav-remove:hover { color: #ef4444; }
+
+  /* Mode dock-bottom (console en barre du bas) */
+  .console.dock-bottom {
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 50vh;
+    overflow-y: auto;
+    border-radius: 10px 10px 0 0;
+    border-bottom: none;
+  }
+  .console.dock-bottom .console-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .console.dock-bottom .console-section {
+    border-bottom: none;
+    border-right: 1px solid var(--border);
+    padding: 0 12px;
+  }
+  .console.dock-bottom .console-section:last-child { border-right: none; }
+  .console.dock-bottom.minimized .console-body { display: none; }
+  .console.dock-bottom .console-header { cursor: default; }
+  .console.dock-bottom .drag-handle { display: none; }
 
   /* Mini timers dans les blocs silence */
   .silence-timer-wrap {
@@ -1863,6 +1964,39 @@ window.addEventListener('scroll', setActive);
 setActive();
 // ═════════════════ CONSOLE FLOTTANTE ═════════════════
 
+// --- Timer générique (factorisé pour global + manuel) ---
+function makeTimer(displayId, startBtnId, pauseBtnId, resetBtnId) {
+  let state = { elapsed: 0, running: false, interval: null, startTime: null };
+  const disp = () => document.getElementById(displayId);
+  const render = () => {
+    const el = disp();
+    if (el) {
+      el.textContent = fmtTime(state.elapsed);
+      el.classList.toggle('running', state.running);
+    }
+  };
+  const start = () => {
+    if (state.running) return;
+    state.running = true;
+    state.startTime = Date.now() - state.elapsed * 1000;
+    state.interval = setInterval(() => {
+      state.elapsed = (Date.now() - state.startTime) / 1000;
+      render();
+    }, 500);
+    render();
+  };
+  const pause = () => {
+    state.running = false;
+    if (state.interval) clearInterval(state.interval);
+    render();
+  };
+  const reset = () => { pause(); state.elapsed = 0; render(); };
+  document.getElementById(startBtnId).onclick = start;
+  document.getElementById(pauseBtnId).onclick = pause;
+  document.getElementById(resetBtnId).onclick = reset;
+  return { start, pause, reset };
+}
+
 // --- Timer global ---
 let timerGlobal = { elapsed: 0, running: false, interval: null, startTime: null };
 const fmtTime = (s) => {
@@ -1954,6 +2088,7 @@ function playBowlWebAudio() {
 
 // --- Superposition de sons avec fade-out ---
 const activeSounds = { bell: [], bowl: [] };
+let soundVolume = parseFloat(localStorage.getItem('soundVolume') || '0.8');
 
 function playSound(type) {
   // Fade-out des sons actifs de ce type
@@ -1972,7 +2107,7 @@ function playSound(type) {
   // Joue un nouveau son
   if (soundFilesAvailable[type]) {
     const a = new Audio(SOUND_PATHS[type]);
-    a.volume = 1.0;
+    a.volume = soundVolume;
     a.play().catch(e => {
       console.warn('Audio failed, fallback to Web Audio:', e);
       type === 'bell' ? playBellWebAudio() : playBowlWebAudio();
@@ -2072,8 +2207,9 @@ function convertSilenceBlocks() {
 }
 
 // --- YouTube Player API ---
-// Playlist ID fournie par Guillaume
 const YT_PLAYLIST_ID = 'PL53VfNZ8YELhXiaeN1feK-EDbAl8I6KFz';
+// Première vidéo de la playlist (pour bootstrap, sinon "Vidéo non disponible")
+const YT_INITIAL_VIDEO = 'mPOB8a6llyE';
 let ytPlayer = null;
 let ytReady = false;
 
@@ -2081,15 +2217,22 @@ function onYouTubeIframeAPIReady() {
   ytPlayer = new YT.Player('ytplayer', {
     height: '130',
     width: '100%',
+    videoId: YT_INITIAL_VIDEO,
     playerVars: {
-      listType: 'playlist',
       list: YT_PLAYLIST_ID,
+      listType: 'playlist',
       controls: 1,
       modestbranding: 1,
       rel: 0,
+      playsinline: 1,
     },
     events: {
-      onReady: () => { ytReady = true; ytPlayer.setVolume(40); },
+      onReady: () => {
+        ytReady = true;
+        const savedVol = parseInt(localStorage.getItem('ytVolume') || '40');
+        ytPlayer.setVolume(savedVol);
+      },
+      onError: (e) => console.warn('YT player error:', e.data),
     }
   });
 }
@@ -2102,6 +2245,70 @@ function ytPlayPause() {
 }
 function ytNext() { if (ytReady) ytPlayer.nextVideo(); }
 function ytPrev() { if (ytReady) ytPlayer.previousVideo(); }
+
+function ytPlayVideoById(videoId) {
+  if (!ytReady) { alert('Player pas encore prêt, attends 2 sec'); return; }
+  ytPlayer.loadVideoById(videoId);
+}
+
+// --- Favoris YouTube (accès rapide par clic) ---
+function extractYtId(url) {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+async function fetchYtTitle(videoId) {
+  try {
+    const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    return d.title;
+  } catch (e) {
+    return videoId; // fallback
+  }
+}
+
+let ytFavorites = JSON.parse(localStorage.getItem('ytFavorites') || '[]');
+
+function renderYtFavorites() {
+  const ul = document.getElementById('ytFavorites');
+  if (!ul) return;
+  ul.innerHTML = '';
+  ytFavorites.forEach((fav, i) => {
+    const li = document.createElement('li');
+    li.className = 'yt-fav-item';
+    li.innerHTML = `
+      <button class="yt-fav-play" data-vid="${fav.id}" title="Jouer">▶</button>
+      <span class="yt-fav-title">${fav.title}</span>
+      <button class="yt-fav-remove" data-i="${i}" title="Retirer">×</button>
+    `;
+    ul.appendChild(li);
+  });
+  ul.querySelectorAll('.yt-fav-play').forEach(b => {
+    b.onclick = () => ytPlayVideoById(b.dataset.vid);
+  });
+  ul.querySelectorAll('.yt-fav-remove').forEach(b => {
+    b.onclick = () => {
+      ytFavorites.splice(parseInt(b.dataset.i), 1);
+      localStorage.setItem('ytFavorites', JSON.stringify(ytFavorites));
+      renderYtFavorites();
+    };
+  });
+}
+
+async function addYtFavorite() {
+  const input = document.getElementById('ytFavInput');
+  const url = input.value.trim();
+  if (!url) return;
+  const id = extractYtId(url);
+  if (!id) { alert('URL YouTube invalide'); return; }
+  if (ytFavorites.find(f => f.id === id)) { alert('Déjà dans les favoris'); return; }
+  input.value = '';
+  const title = await fetchYtTitle(id);
+  ytFavorites.push({ id, title });
+  localStorage.setItem('ytFavorites', JSON.stringify(ytFavorites));
+  renderYtFavorites();
+}
 
 // --- Drag de la console ---
 function makeDraggable(el, handle) {
@@ -2153,14 +2360,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   await checkSoundFiles();
   convertSilenceBlocks();
 
+  // Timer global (réutilise les IDs existants)
   document.getElementById('btnTimerStart').onclick = startGlobalTimer;
   document.getElementById('btnTimerPause').onclick = pauseGlobalTimer;
   document.getElementById('btnTimerReset').onclick = resetGlobalTimer;
+
+  // Timer manuel (libre)
+  makeTimer('timerManual', 'btnManualStart', 'btnManualPause', 'btnManualReset');
+
   document.getElementById('btnBell').onclick = () => playSound('bell');
   document.getElementById('btnBowl').onclick = () => playSound('bowl');
   document.getElementById('btnYtPlay').onclick = ytPlayPause;
   document.getElementById('btnYtNext').onclick = ytNext;
   document.getElementById('btnYtPrev').onclick = ytPrev;
+
+  // Volumes
+  const volSound = document.getElementById('soundVolume');
+  volSound.value = soundVolume;
+  volSound.oninput = (e) => {
+    soundVolume = parseFloat(e.target.value);
+    localStorage.setItem('soundVolume', soundVolume);
+    // Applique aux sons en cours
+    [...activeSounds.bell, ...activeSounds.bowl].forEach(a => { if (!a.paused) a.volume = soundVolume; });
+  };
+  const ytVol = document.getElementById('ytVolume');
+  const savedYtVol = parseInt(localStorage.getItem('ytVolume') || '40');
+  ytVol.value = savedYtVol;
+  ytVol.oninput = (e) => {
+    const v = parseInt(e.target.value);
+    localStorage.setItem('ytVolume', v);
+    if (ytReady) ytPlayer.setVolume(v);
+  };
+
+  // Favoris YouTube
+  document.getElementById('btnYtFavAdd').onclick = addYtFavorite;
+  document.getElementById('ytFavInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addYtFavorite();
+  });
+  renderYtFavorites();
 
   // Toggle console minimize
   document.getElementById('consoleToggle').onclick = (e) => {
@@ -2172,6 +2409,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem('consoleMinimized', c.classList.contains('minimized') ? '1' : '0');
   };
 
+  // Toggle dock bottom
+  document.getElementById('btnDock').onclick = (e) => {
+    e.stopPropagation();
+    const c = document.getElementById('console');
+    c.classList.toggle('dock-bottom');
+    const btn = document.getElementById('btnDock');
+    const isDocked = c.classList.contains('dock-bottom');
+    btn.textContent = isDocked ? '⤢' : '⤓';
+    btn.title = isDocked ? 'Remettre en flottant' : 'Bascule en bas';
+    // Reset position inline si on retourne flottant
+    if (!isDocked) {
+      const savedPos = localStorage.getItem('consolePos');
+      if (savedPos) {
+        try {
+          const p = JSON.parse(savedPos);
+          if (p.left) { c.style.left = p.left; c.style.right = 'auto'; }
+          if (p.top) c.style.top = p.top;
+        } catch (err) {}
+      } else {
+        c.style.left = ''; c.style.top = ''; c.style.right = '';
+      }
+    }
+    localStorage.setItem('consoleDocked', isDocked ? '1' : '0');
+  };
+
   // Drag
   const consoleEl = document.getElementById('console');
   const headerEl = document.getElementById('consoleHeader');
@@ -2179,7 +2441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Restaurer position + état
   const savedPos = localStorage.getItem('consolePos');
-  if (savedPos) {
+  if (savedPos && localStorage.getItem('consoleDocked') !== '1') {
     try {
       const p = JSON.parse(savedPos);
       if (p.left) { consoleEl.style.left = p.left; consoleEl.style.right = 'auto'; }
@@ -2189,6 +2451,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (localStorage.getItem('consoleMinimized') === '1') {
     consoleEl.classList.add('minimized');
     document.getElementById('consoleToggle').textContent = '▢';
+  }
+  if (localStorage.getItem('consoleDocked') === '1') {
+    consoleEl.classList.add('dock-bottom');
+    document.getElementById('btnDock').textContent = '⤢';
+  }
+
+  // Auto-dock sur mobile au premier chargement
+  if (window.matchMedia('(max-width: 768px)').matches && localStorage.getItem('consoleDocked') === null) {
+    consoleEl.classList.add('dock-bottom');
+    document.getElementById('btnDock').textContent = '⤢';
   }
 
   // Charger API YouTube
@@ -2203,7 +2475,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 <div class="console" id="console">
   <div class="console-header" id="consoleHeader">
     <span><span class="drag-handle">⋮⋮</span> Console</span>
-    <button class="console-toggle" id="consoleToggle" title="Réduire/agrandir">_</button>
+    <span>
+      <button class="console-toggle" id="btnDock" title="Bascule en bas / flottant">⤓</button>
+      <button class="console-toggle" id="consoleToggle" title="Réduire/agrandir">_</button>
+    </span>
   </div>
 
   <div class="console-body">
@@ -2215,6 +2490,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         <button class="console-btn" id="btnTimerStart" title="Démarrer">▶</button>
         <button class="console-btn" id="btnTimerPause" title="Pause">⏸</button>
         <button class="console-btn" id="btnTimerReset" title="Reset">↻</button>
+      </div>
+    </div>
+
+    <!-- Timer manuel (libre) -->
+    <div class="console-section">
+      <div class="console-section-label">Timer libre</div>
+      <div class="timer-display small" id="timerManual">00:00</div>
+      <div class="timer-controls">
+        <button class="console-btn" id="btnManualStart" title="Démarrer">▶</button>
+        <button class="console-btn" id="btnManualPause" title="Pause">⏸</button>
+        <button class="console-btn" id="btnManualReset" title="Reset">↻</button>
       </div>
     </div>
 
@@ -2231,6 +2517,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span class="count" id="count-bowl"></span>
         </button>
       </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+        <span style="font-size:14px">🔈</span>
+        <input type="range" id="soundVolume" min="0" max="1" step="0.05" value="0.8" style="flex:1;">
+        <span style="font-size:14px">🔊</span>
+      </div>
     </div>
 
     <!-- YouTube -->
@@ -2244,6 +2535,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         <button class="console-btn" id="btnYtPlay" title="Play/Pause">⏯</button>
         <button class="console-btn" id="btnYtNext" title="Suivant">⏭</button>
       </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+        <span style="font-size:14px">🔈</span>
+        <input type="range" id="ytVolume" min="0" max="100" step="5" value="40" style="flex:1;">
+        <span style="font-size:14px">🔊</span>
+      </div>
+      <div class="yt-fav-add">
+        <input type="text" id="ytFavInput" placeholder="Colle une URL YouTube...">
+        <button id="btnYtFavAdd">+</button>
+      </div>
+      <ul class="yt-fav-list" id="ytFavorites"></ul>
     </div>
   </div>
 </div>
