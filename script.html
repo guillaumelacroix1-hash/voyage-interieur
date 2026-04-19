@@ -585,62 +585,87 @@
     .planB-header { padding: 14px 16px; }
   }
 
-  /* ═════════════════ CONSOLE DE PILOTAGE ═════════════════ */
+  /* ═════════════════ CONSOLE FLOTTANTE ═════════════════ */
 
-  /* Barre de pilotage en bas (fixe) */
+  /* Console flottante verticale draggable */
   .console {
     position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(15, 10, 30, 0.95);
+    top: 80px;
+    right: 20px;
+    width: 220px;
+    background: rgba(15, 10, 30, 0.96);
     backdrop-filter: blur(12px);
-    border-top: 1px solid var(--gold-soft);
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    z-index: 50;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
-    transition: transform 0.3s ease;
-    flex-wrap: wrap;
-  }
-  .console.hidden { transform: translateY(calc(100% - 40px)); }
-  .console-toggle {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 20px;
-    background: var(--bg-elevated);
     border: 1px solid var(--gold-soft);
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    cursor: pointer;
+    border-radius: 10px;
+    padding: 0;
+    z-index: 50;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    transition: none;
+    user-select: none;
+    overflow: hidden;
+  }
+  .console.minimized > .console-body { display: none; }
+  .console.minimized { width: auto; }
+  .console-header {
+    background: var(--bg-elevated);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    cursor: grab;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     color: var(--gold);
-    font-size: 11px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+  .console-header:active { cursor: grabbing; }
+  .console-header .drag-handle { opacity: 0.5; font-size: 14px; }
+  .console-toggle {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 4px;
+  }
+  .console-toggle:hover { color: var(--gold); }
+  .console-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .console-section {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .console-section:last-child { border-bottom: none; }
+  .console-section-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+    font-weight: bold;
   }
 
-  /* Timer global */
-  .timer-block {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: rgba(212, 169, 74, 0.08);
-    border: 1px solid var(--gold-soft);
-    border-radius: 6px;
-  }
+  /* Timer global (gros) */
   .timer-display {
     font-family: 'Courier New', monospace;
-    font-size: 20px;
+    font-size: 32px;
     color: var(--gold);
     font-weight: bold;
-    min-width: 70px;
+    text-align: center;
+    padding: 6px 0;
+    letter-spacing: 2px;
   }
   .timer-display.running { color: #4ade80; }
+  .timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
   .console-btn {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -657,51 +682,83 @@
     border-color: var(--gold);
     color: var(--gold);
   }
-  .console-btn.active {
-    background: rgba(212, 169, 74, 0.2);
-    border-color: var(--gold);
-    color: var(--gold);
-  }
   .console-btn.big {
-    font-size: 16px;
-    padding: 8px 14px;
+    font-size: 22px;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  .console-btn.active {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: #4ade80;
+    color: #4ade80;
   }
 
-  .console-group {
+  /* Boutons sons — gros */
+  .sound-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sound-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-right: 1px solid var(--border);
-  }
-  .console-group:last-child { border-right: none; }
-  .console-label {
-    font-size: 10px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-right: 4px;
-  }
-
-  /* Player audio */
-  .music-player {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 250px;
-  }
-  .music-select {
+    justify-content: space-between;
+    padding: 10px 12px;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 6px 8px;
-    border-radius: 5px;
-    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
     font-family: inherit;
-    max-width: 200px;
+    font-size: 13px;
+    transition: all 0.15s;
   }
-  .music-volume {
-    width: 80px;
+  .sound-btn:hover {
+    background: rgba(212, 169, 74, 0.15);
+    border-color: var(--gold);
+  }
+  .sound-btn:active {
+    transform: scale(0.97);
+  }
+  .sound-btn .emoji {
+    font-size: 20px;
+  }
+  .sound-btn .count {
+    background: var(--gold-soft);
+    color: var(--bg);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+  }
+  .sound-btn .count:empty { display: none; }
+
+  /* Player YouTube */
+  .yt-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 */
+    margin-bottom: 6px;
+  }
+  .yt-container iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .yt-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .volume-slider {
+    width: 100%;
+    margin-top: 4px;
   }
 
   /* Mini timers dans les blocs silence */
@@ -833,18 +890,13 @@
   }
   #spotifyEmbed { margin-top: 12px; border-radius: 8px; width: 100%; height: 152px; }
 
-  /* Mobile adaptations console */
+  /* Mobile : console reste flottante mais plus petite */
   @media (max-width: 768px) {
-    .console { padding: 8px 10px; gap: 6px; font-size: 12px; }
-    .console-group { padding: 2px 6px; gap: 4px; }
-    .console-label { display: none; }
-    .timer-display { font-size: 16px; min-width: 60px; }
-    .music-player { min-width: 150px; }
-    .music-select { max-width: 120px; font-size: 11px; }
-    .music-volume { width: 50px; }
-    .main { padding-bottom: 180px !important; }
+    .console { width: 180px; top: 60px; right: 10px; }
+    .timer-display { font-size: 24px; }
+    .console-btn.big { font-size: 18px; }
   }
-  .main { padding-bottom: 140px; }
+  .main { padding-bottom: 40px; }
 
   /* Print */
   @media print {
@@ -1800,7 +1852,7 @@ const setActive = () => {
 };
 window.addEventListener('scroll', setActive);
 setActive();
-// ═════════════════ CONSOLE DE PILOTAGE ═════════════════
+// ═════════════════ CONSOLE FLOTTANTE ═════════════════
 
 // --- Timer global ---
 let timerGlobal = { elapsed: 0, running: false, interval: null, startTime: null };
@@ -1840,120 +1892,107 @@ function resetGlobalTimer() {
   renderGlobalTimer();
 }
 
-// --- Web Audio API : sons générés ---
+// --- Sons pré-intégrés (fichiers MP3 dans sound-effect/) avec fallback Web Audio ---
+const SOUND_PATHS = {
+  bell: 'sound-effect/cloche.mp3',
+  bowl: 'sound-effect/bol.mp3',
+};
+const soundFilesAvailable = { bell: false, bowl: false };
+
+// Détecte si les fichiers existent
+async function checkSoundFiles() {
+  for (const key of ['bell', 'bowl']) {
+    try {
+      const r = await fetch(SOUND_PATHS[key], { method: 'HEAD' });
+      soundFilesAvailable[key] = r.ok;
+    } catch (e) { soundFilesAvailable[key] = false; }
+  }
+}
+
+// Web Audio API pour fallback
 let audioCtx = null;
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
-
-// Petite cloche (tintement léger, ~2 sec)
-function playBell() {
-  if (customBellAudio) { customBellAudio.currentTime = 0; customBellAudio.play(); return; }
+function playBellWebAudio() {
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
-  const freqs = [1760, 2093]; // Do6 / La5
-  freqs.forEach((f, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = f;
+  [1760, 2093].forEach((f, i) => {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = f;
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(0.3 - i*0.1, now + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
     osc.connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 2.8);
+    osc.start(now); osc.stop(now + 2.8);
   });
 }
-
-// Gong tibétain (fondamental + harmoniques, décroissance lente ~6 sec)
-function playGong() {
-  if (customGongAudio) { customGongAudio.currentTime = 0; customGongAudio.play(); return; }
+function playBowlWebAudio() {
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
-  const harmonics = [
-    { f: 196, g: 0.35 },  // G3 fondamental
-    { f: 293, g: 0.18 },  // D4
-    { f: 392, g: 0.12 },  // G4
-    { f: 587, g: 0.08 },  // D5
-    { f: 784, g: 0.05 },  // G5
-  ];
-  harmonics.forEach(h => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = h.f;
+  [{f:196,g:0.35},{f:293,g:0.18},{f:392,g:0.12},{f:587,g:0.08},{f:784,g:0.05}].forEach(h => {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = h.f;
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(h.g, now + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 6);
     osc.connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 6.2);
+    osc.start(now); osc.stop(now + 6.2);
   });
 }
 
-// --- Custom sounds (uploadés) ---
-let customBellAudio = null, customGongAudio = null;
+// --- Superposition de sons avec fade-out ---
+const activeSounds = { bell: [], bowl: [] };
 
-// --- Playlist musique ---
-let tracks = []; // {name, url, element}
-let currentTrack = null;
-const musicAudio = new Audio();
-musicAudio.volume = 0.5;
-
-function renderTracksList() {
-  const ul = document.getElementById('tracksList');
-  const sel = document.getElementById('musicSelect');
-  if (!ul || !sel) return;
-  ul.innerHTML = '';
-  sel.innerHTML = '<option value="">— Choisir —</option>';
-  tracks.forEach((t, i) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span>${t.name}</span><button class="remove" data-i="${i}">×</button>`;
-    ul.appendChild(li);
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = t.name;
-    sel.appendChild(opt);
+function playSound(type) {
+  // Fade-out des sons actifs de ce type
+  activeSounds[type].forEach(audio => {
+    if (audio.paused) return;
+    const fadeInterval = setInterval(() => {
+      if (audio.volume > 0.05) {
+        audio.volume = Math.max(0, audio.volume - 0.05);
+      } else {
+        audio.pause();
+        clearInterval(fadeInterval);
+      }
+    }, 100); // fade sur ~2 secondes
   });
-  ul.querySelectorAll('.remove').forEach(b => {
-    b.onclick = () => {
-      const i = parseInt(b.dataset.i);
-      URL.revokeObjectURL(tracks[i].url);
-      tracks.splice(i, 1);
-      renderTracksList();
-    };
-  });
-}
 
-function playSelectedTrack() {
-  const sel = document.getElementById('musicSelect');
-  const i = parseInt(sel.value);
-  if (isNaN(i) || !tracks[i]) return;
-  currentTrack = tracks[i];
-  musicAudio.src = currentTrack.url;
-  musicAudio.play().catch(e => console.error(e));
-  document.getElementById('btnMusicPlay').textContent = '⏸';
-}
-
-function toggleMusic() {
-  if (!musicAudio.src) { playSelectedTrack(); return; }
-  if (musicAudio.paused) {
-    musicAudio.play();
-    document.getElementById('btnMusicPlay').textContent = '⏸';
+  // Joue un nouveau son
+  if (soundFilesAvailable[type]) {
+    const a = new Audio(SOUND_PATHS[type]);
+    a.volume = 1.0;
+    a.play().catch(e => {
+      console.warn('Audio failed, fallback to Web Audio:', e);
+      type === 'bell' ? playBellWebAudio() : playBowlWebAudio();
+    });
+    activeSounds[type].push(a);
+    // Nettoie le tableau des sons finis
+    a.addEventListener('ended', () => {
+      activeSounds[type] = activeSounds[type].filter(s => s !== a);
+    });
   } else {
-    musicAudio.pause();
-    document.getElementById('btnMusicPlay').textContent = '▶';
+    type === 'bell' ? playBellWebAudio() : playBowlWebAudio();
+  }
+
+  // Update compteur
+  const countEl = document.getElementById(`count-${type}`);
+  if (countEl) {
+    const n = activeSounds[type].filter(a => !a.paused).length;
+    countEl.textContent = n > 0 ? n : '';
   }
 }
 
-function stopMusic() {
-  musicAudio.pause();
-  musicAudio.currentTime = 0;
-  document.getElementById('btnMusicPlay').textContent = '▶';
-}
+// Périodiquement nettoie les compteurs
+setInterval(() => {
+  ['bell', 'bowl'].forEach(type => {
+    activeSounds[type] = activeSounds[type].filter(a => !a.paused);
+    const countEl = document.getElementById(`count-${type}`);
+    if (countEl) countEl.textContent = activeSounds[type].length > 0 ? activeSounds[type].length : '';
+  });
+}, 500);
 
 // --- Mini timers dans les blocs silence ---
 const silenceDurations = {};
@@ -1999,7 +2038,7 @@ function createSilenceTimer(block, minutes) {
           btn.textContent = '✓ Fini';
           disp.classList.remove('running');
           disp.classList.add('done');
-          playBell(); // sonne la cloche à la fin
+          playSound('bell'); // clochette auto à la fin
         }
         disp.textContent = fmtTime(t.remaining);
       }, 200);
@@ -2015,150 +2054,188 @@ function createSilenceTimer(block, minutes) {
   };
 }
 
-// Convertit les blocs "━━━ X MINUTES ━━━" existants en timers cliquables
 function convertSilenceBlocks() {
   document.querySelectorAll('.pause.big').forEach(block => {
     const text = block.textContent;
     const match = text.match(/(\d+)\s*MINUTES?/i);
-    if (match) {
-      createSilenceTimer(block, parseInt(match[1]));
+    if (match) createSilenceTimer(block, parseInt(match[1]));
+  });
+}
+
+// --- YouTube Player API ---
+// Playlist ID fournie par Guillaume
+const YT_PLAYLIST_ID = 'PL53VfNZ8YELhXiaeN1feK-EDbAl8I6KFz';
+let ytPlayer = null;
+let ytReady = false;
+
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player('ytplayer', {
+    height: '130',
+    width: '100%',
+    playerVars: {
+      listType: 'playlist',
+      list: YT_PLAYLIST_ID,
+      controls: 1,
+      modestbranding: 1,
+      rel: 0,
+    },
+    events: {
+      onReady: () => { ytReady = true; ytPlayer.setVolume(40); },
     }
   });
 }
 
-// --- Spotify Embed ---
-function updateSpotifyEmbed() {
-  const url = document.getElementById('spotifyUrl').value.trim();
-  const ctr = document.getElementById('spotifyEmbed');
-  if (!url) { ctr.innerHTML = ''; return; }
-  // Convertit un lien Spotify classique en embed
-  const m = url.match(/spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
-  if (!m) { ctr.innerHTML = '<p style="color:#ef4444">URL invalide</p>'; return; }
-  const embedUrl = `https://open.spotify.com/embed/${m[1]}/${m[2]}`;
-  ctr.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-  localStorage.setItem('spotifyUrl', url);
+function ytPlayPause() {
+  if (!ytReady) return;
+  const state = ytPlayer.getPlayerState();
+  if (state === 1) ytPlayer.pauseVideo();
+  else ytPlayer.playVideo();
+}
+function ytNext() { if (ytReady) ytPlayer.nextVideo(); }
+function ytPrev() { if (ytReady) ytPlayer.previousVideo(); }
+
+// --- Drag de la console ---
+function makeDraggable(el, handle) {
+  let isDragging = false, offsetX = 0, offsetY = 0;
+  handle.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('console-toggle')) return;
+    isDragging = true;
+    const rect = el.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    el.style.right = 'auto';
+    el.style.left = (e.clientX - offsetX) + 'px';
+    el.style.top = (e.clientY - offsetY) + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      localStorage.setItem('consolePos', JSON.stringify({ left: el.style.left, top: el.style.top }));
+    }
+  });
+  // Touch support
+  handle.addEventListener('touchstart', (e) => {
+    if (e.target.classList.contains('console-toggle')) return;
+    isDragging = true;
+    const rect = el.getBoundingClientRect();
+    offsetX = e.touches[0].clientX - rect.left;
+    offsetY = e.touches[0].clientY - rect.top;
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    el.style.right = 'auto';
+    el.style.left = (e.touches[0].clientX - offsetX) + 'px';
+    el.style.top = (e.touches[0].clientY - offsetY) + 'px';
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    if (isDragging) {
+      isDragging = false;
+      localStorage.setItem('consolePos', JSON.stringify({ left: el.style.left, top: el.style.top }));
+    }
+  });
 }
 
-// --- Init bindings ---
-document.addEventListener('DOMContentLoaded', () => {
+// --- Init ---
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkSoundFiles();
   convertSilenceBlocks();
 
   document.getElementById('btnTimerStart').onclick = startGlobalTimer;
   document.getElementById('btnTimerPause').onclick = pauseGlobalTimer;
   document.getElementById('btnTimerReset').onclick = resetGlobalTimer;
-  document.getElementById('btnBell').onclick = playBell;
-  document.getElementById('btnGong').onclick = playGong;
-  document.getElementById('btnMusicPlay').onclick = toggleMusic;
-  document.getElementById('btnMusicStop').onclick = stopMusic;
-  document.getElementById('musicSelect').onchange = () => { if (document.getElementById('musicSelect').value) playSelectedTrack(); };
-  document.getElementById('musicVolume').oninput = (e) => { musicAudio.volume = parseFloat(e.target.value); };
+  document.getElementById('btnBell').onclick = () => playSound('bell');
+  document.getElementById('btnBowl').onclick = () => playSound('bowl');
+  document.getElementById('btnYtPlay').onclick = ytPlayPause;
+  document.getElementById('btnYtNext').onclick = ytNext;
+  document.getElementById('btnYtPrev').onclick = ytPrev;
 
-  document.getElementById('btnConfig').onclick = () => document.getElementById('configModal').classList.add('active');
-  document.getElementById('configClose').onclick = () => document.getElementById('configModal').classList.remove('active');
-  document.getElementById('configModal').onclick = (e) => { if (e.target.id === 'configModal') e.target.classList.remove('active'); };
-
-  // Upload musiques
-  document.getElementById('uploadMusic').onchange = (e) => {
-    for (const file of e.target.files) {
-      tracks.push({ name: file.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(file) });
-    }
-    renderTracksList();
-    e.target.value = '';
-  };
-  // Upload cloche
-  document.getElementById('uploadBell').onchange = (e) => {
-    const f = e.target.files[0];
-    if (f) { customBellAudio = new Audio(URL.createObjectURL(f)); alert('Cloche personnalisée chargée ✓'); }
-  };
-  // Upload gong
-  document.getElementById('uploadGong').onchange = (e) => {
-    const f = e.target.files[0];
-    if (f) { customGongAudio = new Audio(URL.createObjectURL(f)); alert('Gong personnalisé chargé ✓'); }
-  };
-  // Spotify
-  const savedSpotify = localStorage.getItem('spotifyUrl');
-  if (savedSpotify) { document.getElementById('spotifyUrl').value = savedSpotify; updateSpotifyEmbed(); }
-  document.getElementById('btnSpotifyLoad').onclick = updateSpotifyEmbed;
-
-  // Toggle console
-  document.getElementById('consoleToggle').onclick = () => {
-    document.getElementById('console').classList.toggle('hidden');
-    const t = document.getElementById('consoleToggle');
-    t.textContent = document.getElementById('console').classList.contains('hidden') ? '▲ Console' : '▼ Cacher';
+  // Toggle console minimize
+  document.getElementById('consoleToggle').onclick = (e) => {
+    e.stopPropagation();
+    const c = document.getElementById('console');
+    c.classList.toggle('minimized');
+    const btn = document.getElementById('consoleToggle');
+    btn.textContent = c.classList.contains('minimized') ? '▢' : '_';
+    localStorage.setItem('consoleMinimized', c.classList.contains('minimized') ? '1' : '0');
   };
 
-  // Fin musique
-  musicAudio.addEventListener('ended', () => {
-    document.getElementById('btnMusicPlay').textContent = '▶';
-  });
+  // Drag
+  const consoleEl = document.getElementById('console');
+  const headerEl = document.getElementById('consoleHeader');
+  makeDraggable(consoleEl, headerEl);
+
+  // Restaurer position + état
+  const savedPos = localStorage.getItem('consolePos');
+  if (savedPos) {
+    try {
+      const p = JSON.parse(savedPos);
+      if (p.left) { consoleEl.style.left = p.left; consoleEl.style.right = 'auto'; }
+      if (p.top) consoleEl.style.top = p.top;
+    } catch (e) {}
+  }
+  if (localStorage.getItem('consoleMinimized') === '1') {
+    consoleEl.classList.add('minimized');
+    document.getElementById('consoleToggle').textContent = '▢';
+  }
+
+  // Charger API YouTube
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 });
 </script>
 
-<!-- ═════════════════ CONSOLE DE PILOTAGE ═════════════════ -->
+<!-- ═════════════════ CONSOLE FLOTTANTE ═════════════════ -->
 <div class="console" id="console">
-  <button class="console-toggle" id="consoleToggle">▼ Cacher</button>
+  <div class="console-header" id="consoleHeader">
+    <span><span class="drag-handle">⋮⋮</span> Console</span>
+    <button class="console-toggle" id="consoleToggle" title="Réduire/agrandir">_</button>
+  </div>
 
-  <div class="console-group">
-    <span class="console-label">Séance</span>
-    <div class="timer-block">
-      <span class="timer-display" id="timerGlobal">00:00</span>
+  <div class="console-body">
+    <!-- Timer principal -->
+    <div class="console-section">
+      <div class="console-section-label">Timer séance</div>
+      <div class="timer-display" id="timerGlobal">00:00</div>
+      <div class="timer-controls">
+        <button class="console-btn" id="btnTimerStart" title="Démarrer">▶</button>
+        <button class="console-btn" id="btnTimerPause" title="Pause">⏸</button>
+        <button class="console-btn" id="btnTimerReset" title="Reset">↻</button>
+      </div>
     </div>
-    <button class="console-btn" id="btnTimerStart" title="Démarrer">▶</button>
-    <button class="console-btn" id="btnTimerPause" title="Pause">⏸</button>
-    <button class="console-btn" id="btnTimerReset" title="Reset">↻</button>
-  </div>
 
-  <div class="console-group">
-    <span class="console-label">Sons</span>
-    <button class="console-btn big" id="btnBell" title="Clochette (tintement court)">🔔</button>
-    <button class="console-btn big" id="btnGong" title="Gong tibétain (résonnance longue)">🎵</button>
-  </div>
+    <!-- Sons -->
+    <div class="console-section">
+      <div class="console-section-label">Sons</div>
+      <div class="sound-buttons">
+        <button class="sound-btn" id="btnBell" title="Clochette (cloche.mp3)">
+          <span><span class="emoji">🔔</span> Cloche</span>
+          <span class="count" id="count-bell"></span>
+        </button>
+        <button class="sound-btn" id="btnBowl" title="Bol tibétain (bol.mp3)">
+          <span><span class="emoji">🥣</span> Bol tibétain</span>
+          <span class="count" id="count-bowl"></span>
+        </button>
+      </div>
+    </div>
 
-  <div class="console-group music-player">
-    <span class="console-label">Musique</span>
-    <select class="music-select" id="musicSelect"><option value="">— Choisir —</option></select>
-    <button class="console-btn" id="btnMusicPlay" title="Play/Pause">▶</button>
-    <button class="console-btn" id="btnMusicStop" title="Stop">⏹</button>
-    <input type="range" class="music-volume" id="musicVolume" min="0" max="1" step="0.05" value="0.5" title="Volume">
-  </div>
-
-  <div class="console-group">
-    <button class="console-btn" id="btnConfig" title="Configuration">⚙</button>
-  </div>
-</div>
-
-<!-- Modal config -->
-<div class="config-modal" id="configModal">
-  <div class="config-box">
-    <button class="close" id="configClose">×</button>
-    <h2>Configuration — sons & musiques</h2>
-
-    <h3>🎶 Musiques (fond de séance)</h3>
-    <input type="file" id="uploadMusic" accept="audio/*" multiple>
-    <p style="font-size:12px;color:var(--text-dim)">Sélectionne plusieurs fichiers audio (MP3, WAV, OGG...). Ils apparaîtront dans le menu déroulant de la console.</p>
-    <ul class="tracks-list" id="tracksList"></ul>
-
-    <h3>🔔 Clochette personnalisée (optionnel)</h3>
-    <input type="file" id="uploadBell" accept="audio/*">
-    <p style="font-size:12px;color:var(--text-dim)">Par défaut : tintement généré en Web Audio. Upload ton propre fichier pour le remplacer.</p>
-
-    <h3>🎵 Gong personnalisé (optionnel)</h3>
-    <input type="file" id="uploadGong" accept="audio/*">
-    <p style="font-size:12px;color:var(--text-dim)">Par défaut : gong tibétain généré. Upload ton MP3 de bol tibétain pour le remplacer.</p>
-
-    <h3>🔗 Playlist Spotify (optionnel)</h3>
-    <input type="text" id="spotifyUrl" placeholder="Colle l'URL d'une playlist Spotify (open.spotify.com/playlist/...)">
-    <button class="console-btn" id="btnSpotifyLoad" style="margin-top:4px">Charger</button>
-    <div id="spotifyEmbed"></div>
-    <p style="font-size:12px;color:var(--text-dim);margin-top:6px">Contrôle la playlist directement depuis la page (play/pause/volume Spotify).</p>
-
-    <h3>💡 Tips</h3>
-    <p style="font-size:12px;color:var(--text-dim);line-height:1.6">
-      • <strong>Les blocs de silence (5', 4', 12')</strong> sont maintenant des timers cliquables. La clochette sonne automatiquement à la fin.<br>
-      • <strong>Les fichiers uploadés</strong> restent en mémoire tant que tu ne fermes pas l'onglet. Re-upload à chaque session.<br>
-      • <strong>Web Audio</strong> : les sons par défaut (cloche/gong) sont générés — ils fonctionnent même sans internet.<br>
-      • <strong>Spotify</strong> : nécessite que tu sois connecté dans un autre onglet à Spotify (gratuit ou premium).
-    </p>
+    <!-- YouTube -->
+    <div class="console-section">
+      <div class="console-section-label">Playlist YouTube</div>
+      <div class="yt-container">
+        <div id="ytplayer"></div>
+      </div>
+      <div class="yt-controls">
+        <button class="console-btn" id="btnYtPrev" title="Précédent">⏮</button>
+        <button class="console-btn" id="btnYtPlay" title="Play/Pause">⏯</button>
+        <button class="console-btn" id="btnYtNext" title="Suivant">⏭</button>
+      </div>
+    </div>
   </div>
 </div>
 
