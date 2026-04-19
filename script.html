@@ -991,6 +991,101 @@
   }
   #spotifyEmbed { margin-top: 12px; border-radius: 8px; width: 100%; height: 152px; }
 
+  /* Checklist pré-talk */
+  .checklist {
+    background: rgba(157, 111, 224, 0.08);
+    border: 1px solid var(--violet);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .checklist h3 {
+    color: var(--violet);
+    margin: 0 0 16px 0;
+    font-size: 18px !important;
+    font-weight: normal !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+  }
+  .checklist h3::before { content: "" !important; }
+  .checklist ol {
+    margin: 0;
+    padding-left: 24px;
+    line-height: 1.8;
+  }
+  .checklist li {
+    color: var(--text);
+    margin-bottom: 6px;
+    font-size: 0.95em;
+  }
+  .checklist li strong { color: var(--gold); }
+  .checklist .sub {
+    list-style: circle;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding-left: 20px;
+  }
+  .checklist .sub li {
+    font-size: 0.88em;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  /* Toggle texte complet */
+  details.full-text {
+    margin: 20px 0;
+    border: 1px dashed var(--gold-soft);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  details.full-text summary {
+    padding: 12px 18px;
+    background: rgba(212, 169, 74, 0.06);
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    list-style: none;
+    user-select: none;
+  }
+  details.full-text summary::-webkit-details-marker { display: none; }
+  details.full-text summary::before {
+    content: "▶ ";
+    display: inline-block;
+    transition: transform 0.2s;
+  }
+  details.full-text[open] summary::before {
+    transform: rotate(90deg);
+  }
+  details.full-text > *:not(summary) {
+    padding: 0 24px;
+  }
+  details.full-text[open] {
+    padding-bottom: 20px;
+  }
+
+  /* Bouton "passer à..." */
+  .skip-btn {
+    display: inline-block;
+    background: var(--violet);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    margin: 16px 0;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  .skip-btn:hover {
+    background: var(--gold);
+    color: var(--bg);
+  }
+
   /* Mobile : console reste flottante mais plus petite */
   @media (max-width: 768px) {
     .console { width: 180px; top: 60px; right: 10px; }
@@ -1115,6 +1210,55 @@
   <div class="note">Toute la démystif + couper l'herbe au mental + forme/fond + logistique + peur de s'endormir est ICI, au début, avant le yoga. Après yoga on enchaîne directement sur allongement → cohérence cardiaque → induction.</div>
   <div class="note">Posture : assis face à eux, contact visuel, voix posée. Tu regardes chaque personne au moins une fois.</div>
 
+  <!-- Checklist à apprendre par cœur -->
+  <div class="checklist">
+    <h3>📝 Aide-mémoire — à apprendre par cœur</h3>
+    <ol>
+      <li><strong>Bienvenue</strong> + je suis Guillaume, praticien en hypnose transpersonnelle + on va vivre un voyage intérieur ensemble</li>
+      <li><strong>Rôle de guide</strong> — je connais le chemin, vous restez acteurs. Je tiens la main, j'ouvre les portes</li>
+      <li>Installation assise (demi-cercle, colonne droite)</li>
+      <li><strong>Rappel de la question existentielle</strong> — gardée précieusement, fil conducteur</li>
+      <li><strong>Annonce du déroulé</strong> : 15' pré-talk → 15' yoga avec Nat → allongement + respi → voyage</li>
+      <li><strong>Démystif hypnose</strong> :
+        <ul class="sub">
+          <li>Pas dormir, pas perdre le contrôle — état naturel</li>
+          <li>Métaphore trajet en voiture (arriver sans se souvenir du trajet)</li>
+          <li>Ondes : bêta 20-25 Hz → alpha 8-12 → thêta 4-8 (état cherché)</li>
+          <li>C'est proche de l'hypnosédation des blocs opératoires</li>
+          <li>Vous restez conscients, pouvez ouvrir les yeux à tout moment</li>
+          <li>Si sortie : revenir avant la fin pour le retour correct</li>
+        </ul>
+      </li>
+      <li><strong>Forme et fond</strong> — images, sensations, mots, symboles, émotions. Ne pas fixer sur "qu'est-ce qui apparaît", le FOND compte plus que la FORME. On accueille, on analyse plus tard</li>
+      <li><strong>Couper l'herbe au mental</strong> :
+        <ul class="sub">
+          <li>Il va dire : "Je ne suis pas hypnotisé" → c'est vrai, ça ne change rien</li>
+          <li>Il va dire : "C'est mon imagination / j'invente"</li>
+          <li>Il va dire : "Je l'ai vu dans un film"</li>
+          <li>Il va dire : "C'est n'importe quoi / cliché"</li>
+          <li>3 fonctions : analyser / comparer / classifier. Il ne SAIT PAS imaginer</li>
+          <li>Ne pas le combattre → "Tu auras le temps de critiquer après, laisse-moi jouer le jeu"</li>
+        </ul>
+      </li>
+      <li><strong>4 façons de percevoir</strong> — voir, ressentir, entendre, savoir (par intuition). Toutes valables</li>
+      <li><strong>RÈGLE D'OR — la confiance</strong> :
+        <ul class="sub">
+          <li>La PREMIÈRE chose qui vient = la bonne</li>
+          <li>Même si elle semble évidente, banale, venir de vous</li>
+          <li>Pas analyser, pas décrypter, pas comparer</li>
+          <li>Si le mental doute → il parle. Revenez à la première chose</li>
+        </ul>
+      </li>
+      <li><strong>Logistique</strong> — toilettes maintenant / bouteille d'eau à portée / téléphones en silencieux ET loin (pas vibreur, silence complet)</li>
+      <li><strong>Peur de s'endormir</strong> — inconscient continue d'entendre, même si on pique du nez. Rien n'est perdu</li>
+      <li><strong>Confiance au process</strong> → dernière question → « Levez-vous doucement. Nat, à toi. »</li>
+    </ol>
+  </div>
+
+  <!-- Toggle texte complet -->
+  <details class="full-text">
+    <summary>📄 Texte complet (à lire si besoin)</summary>
+
   <div class="subsection">
     <h3>Bienvenue + installation assise · 1 min 30</h3>
     <p class="voix">Bienvenue à tous. Merci d'être là.</p>
@@ -1209,6 +1353,8 @@
     <p class="voix">Très bien. On va activer le corps maintenant. Levez-vous doucement. Nat, à toi.</p>
   </div>
 
+  </details>
+
   <div class="planB">
     <div class="planB-header">🛟 PLAN B — Si perturbation<span class="chevron">▼</span></div>
     <div class="planB-body">
@@ -1232,6 +1378,10 @@
   <div class="note">Nat guide. Toi, tu te poses, tu te prépares intérieurement. Objectif : quand tu reprends la parole, TU es déjà en état.</div>
   <div class="note">Physiologie : après un effort intense, le corps veut se relâcher. C'est le contraste que tu vas exploiter. Plus le yoga est dynamique, plus la descente en phase 3 sera rapide et profonde.</div>
   <div class="note">À caler avec Nat : postures d'ouverture (cœur, hanches), séquence dynamique type salutations, finir debout ou assis — qu'ils puissent s'allonger ensuite facilement.</div>
+
+  <div style="text-align:center;margin-top:20px;">
+    <a href="#phase-3" class="skip-btn">⏭ Passer direct à la phase 3 (après Nat)</a>
+  </div>
 </section>
 
 <!-- ═══════════════════════════ PHASE 3 — ALLONGEMENT + COHÉRENCE CARDIAQUE ═══════════════════════════ -->
@@ -2397,6 +2547,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('ytFavInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addYtFavorite();
   });
+  document.getElementById('btnYtFavEdit').onclick = () => {
+    const box = document.getElementById('ytFavAddBox');
+    box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+  };
   renderYtFavorites();
 
   // Toggle console minimize
@@ -2540,8 +2694,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         <input type="range" id="ytVolume" min="0" max="100" step="5" value="40" style="flex:1;">
         <span style="font-size:14px">🔊</span>
       </div>
-      <div class="yt-fav-add">
-        <input type="text" id="ytFavInput" placeholder="Colle une URL YouTube...">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Sélection rapide</span>
+        <button class="console-toggle" id="btnYtFavEdit" title="Éditer la liste" style="font-size:12px;">✏</button>
+      </div>
+      <div class="yt-fav-add" id="ytFavAddBox" style="display:none;">
+        <input type="text" id="ytFavInput" placeholder="URL YouTube...">
         <button id="btnYtFavAdd">+</button>
       </div>
       <ul class="yt-fav-list" id="ytFavorites"></ul>
