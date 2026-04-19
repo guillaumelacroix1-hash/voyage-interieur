@@ -1676,7 +1676,6 @@
 
   <div class="subsection">
     <h3>Consigne du voyage libre · 1 min 30</h3>
-    <p class="voix">Prenez un instant pour découvrir cet espace. Regardez autour de vous. Ce que vous percevez est juste.</p>
     <p class="pause">( 5 sec )</p>
     <p class="voix">Maintenant, observez. Ressentez. Laissez les images venir, les émotions vous traverser. Laissez-vous emporter par ce qui émerge.</p>
     <p class="voix">Lâchez prise. Il n'y a rien à faire, rien à chercher, juste à accueillir. Tout est juste.</p>
@@ -2280,6 +2279,7 @@ function playSound(type) {
   // Joue un nouveau son
   if (soundFilesAvailable[type]) {
     const a = new Audio(SOUND_PATHS[type]);
+    a.loop = false; // SÉCURITÉ : pas de boucle infinie
     a.volume = soundVolume;
     a.play().catch(e => {
       console.warn('Audio failed, fallback to Web Audio:', e);
@@ -2310,6 +2310,18 @@ setInterval(() => {
     if (countEl) countEl.textContent = activeSounds[type].length > 0 ? activeSounds[type].length : '';
   });
 }, 500);
+
+// Stop d'urgence : arrête TOUS les sons en cours (cloche + bol)
+function stopAllSounds() {
+  ['bell', 'bowl'].forEach(type => {
+    activeSounds[type].forEach(a => {
+      try { a.pause(); a.currentTime = 0; } catch (e) {}
+    });
+    activeSounds[type] = [];
+    const countEl = document.getElementById(`count-${type}`);
+    if (countEl) countEl.textContent = '';
+  });
+}
 
 // --- Mini timers dans les blocs silence ---
 const silenceDurations = {};
@@ -2557,9 +2569,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btnBell').onclick = () => playSound('bell');
   document.getElementById('btnBowl').onclick = () => playSound('bowl');
-  document.getElementById('btnYtPlay').onclick = ytPlayPause;
-  document.getElementById('btnYtNext').onclick = ytNext;
-  document.getElementById('btnYtPrev').onclick = ytPrev;
+  document.getElementById('btnStopAll').onclick = stopAllSounds;
 
   // Volumes
   const volSound = document.getElementById('soundVolume');
@@ -2707,6 +2717,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span><span class="emoji">🥣</span> Bol tibétain</span>
           <span class="count" id="count-bowl"></span>
         </button>
+        <button class="sound-btn" id="btnStopAll" title="Arrête tous les sons en cours" style="background:rgba(239,68,68,0.1);border-color:#ef4444;">
+          <span><span class="emoji">⏹</span> Stop tous les sons</span>
+        </button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
         <span style="font-size:14px">🔈</span>
@@ -2722,11 +2735,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div id="ytplayer"></div>
       </div>
       <div class="yt-current-title" id="ytCurrentTitle">En attente…</div>
-      <div class="yt-controls">
-        <button class="console-btn" id="btnYtPrev" title="Précédent">⏮</button>
-        <button class="console-btn" id="btnYtPlay" title="Play/Pause">⏯</button>
-        <button class="console-btn" id="btnYtNext" title="Suivant">⏭</button>
-      </div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
         <span style="font-size:14px">🔈</span>
         <input type="range" id="ytVolume" min="0" max="100" step="5" value="40" style="flex:1;">
