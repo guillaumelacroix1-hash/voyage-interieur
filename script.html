@@ -592,7 +592,7 @@
     position: fixed;
     top: 80px;
     right: 20px;
-    width: 220px;
+    width: 300px;
     background: rgba(15, 10, 30, 0.96);
     backdrop-filter: blur(12px);
     border: 1px solid var(--gold-soft);
@@ -1675,18 +1675,25 @@
   </div>
 
   <div class="subsection">
-    <h3>Consigne du voyage libre · 1 min 30</h3>
+    <h3>Consigne du voyage libre + règle d'or · 2 min 30</h3>
+    <div class="note">On place le rappel de la règle d'or ICI, AVANT que le contact avec la CI soit établi — pour ne pas interrompre le dialogue intime avec des consignes techniques une fois qu'ils sont connectés.</div>
     <p class="pause">( 5 sec )</p>
     <p class="voix">Maintenant, observez. Ressentez. Laissez les images venir, les émotions vous traverser. Laissez-vous emporter par ce qui émerge.</p>
     <p class="voix">Lâchez prise. Il n'y a rien à faire, rien à chercher, juste à accueillir. Tout est juste.</p>
-    <p class="voix">Je vais vous laisser quelques instants pour faire ce voyage tranquillement, à votre rythme.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">Une dernière chose importante, avant qu'on continue — la règle d'or de cette expérience :</p>
+    <p class="voix">La première chose qui émerge après une question intérieure est TOUJOURS la bonne. La toute première image, le premier mot, la première sensation — c'est elle. Ne la remettez pas en question. Ne cherchez pas à l'analyser. Ne la comparez pas à ce que vous attendiez.</p>
+    <p class="voix">Même si ça paraît étrange, banal, trop simple, ou trop évident — accueillez. Faites confiance.</p>
+    <p class="voix">Si à un moment votre mental vous dit « c'est pas ça » ou « j'invente » — c'est juste le signe qu'il essaie de reprendre le contrôle. Revenez simplement à la première chose qui est venue, et continuez.</p>
+    <p class="pause">( 3 sec )</p>
+    <p class="voix">Voilà. Maintenant, je vais vous laisser quelques instants pour faire ce voyage tranquillement, à votre rythme.</p>
     <p class="voix">Quand la cloche retentira, vous vous reconnecterez naturellement à ma voix, et je vous guiderai dans la suite de votre voyage. D'ici là, vous êtes libre. Immergez-vous pleinement.</p>
   </div>
 
   <div class="subsection">
-    <h3>Silence musical · 5 min</h3>
+    <h3>Silence musical · 8 min</h3>
     <div class="note">Lance la musique hypnotique (nappes profondes). Tu te tais vraiment 5 min. Surveille discrètement le timer. Entre-toi-même en état — ta présence porte le groupe.</div>
-    <p class="pause big">━━━ 5 MINUTES DE SILENCE MUSICAL ━━━</p>
+    <p class="pause big">━━━ 8 MINUTES DE SILENCE MUSICAL ━━━</p>
   </div>
 
   <div class="planB">
@@ -1738,20 +1745,18 @@
   </div>
 
   <div class="subsection">
-    <h3>Consigne du dialogue · 1 min 30</h3>
+    <h3>Consigne du dialogue · 45 sec</h3>
+    <div class="note">On ne répète PAS la règle d'or ici (déjà rappelée en phase 5 avant le contact). Guillaume ne veut pas interrompre le contact direct avec la CI par des consignes techniques.</div>
     <p class="voix">Maintenant, dialoguez avec elle. Librement.</p>
     <p class="voix">Posez-lui votre question — celle que vous portez depuis ce matin. Posez-lui aussi toutes les autres questions qui vous viennent, en lien avec cette question principale ou pas.</p>
-    <p class="voix">Et écoutez. Observez. Ressentez ce qu'elle vous transmet.</p>
-    <p class="voix">Rappelez-vous la règle d'or : la première réponse est la bonne. La toute première chose qui émerge après votre question — c'est elle. Ne la remettez pas en question. Ne cherchez pas à l'analyser. Ne la comparez pas à ce que vous attendiez.</p>
-    <p class="voix">Même si la réponse vous paraît étrange, banale, trop simple, ou trop évidente — accueillez-la. Faites-lui confiance. C'est elle qui parle, pas votre mental.</p>
-    <p class="voix">Si votre mental commence à vous dire « c'est pas ça » ou « j'invente » — c'est le signe que vous êtes en plein dialogue. Revenez simplement à la première chose qui est venue, et poursuivez.</p>
-    <p class="voix">Je vais vous laisser quelques minutes pour ce dialogue. Prenez votre temps.</p>
+    <p class="voix">Et écoutez. Observez. Ressentez ce qu'elle vous transmet. Accueillez ce qui vient.</p>
+    <p class="voix">Je vais vous laisser quelques instants pour ce dialogue. Prenez votre temps.</p>
   </div>
 
   <div class="subsection">
-    <h3>Silence du dialogue · 4 min</h3>
+    <h3>Silence du dialogue · 8 min</h3>
     <div class="note">4 min de silence musical. Les participants dialoguent intérieurement avec leur CI.</div>
-    <p class="pause big">━━━ 4 MINUTES DE SILENCE MUSICAL ━━━</p>
+    <p class="pause big">━━━ 8 MINUTES DE SILENCE MUSICAL ━━━</p>
   </div>
 </section>
 
@@ -2570,6 +2575,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnBell').onclick = () => playSound('bell');
   document.getElementById('btnBowl').onclick = () => playSound('bowl');
   document.getElementById('btnStopAll').onclick = stopAllSounds;
+  document.getElementById('btnYtPlay').onclick = ytPlayPause;
+  document.getElementById('btnYtNext').onclick = ytNext;
+  document.getElementById('btnYtPrev').onclick = ytPrev;
 
   // Volumes
   const volSound = document.getElementById('soundVolume');
@@ -2735,6 +2743,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div id="ytplayer"></div>
       </div>
       <div class="yt-current-title" id="ytCurrentTitle">En attente…</div>
+      <div class="yt-controls">
+        <button class="console-btn" id="btnYtPrev" title="Piste précédente">⏮</button>
+        <button class="console-btn" id="btnYtPlay" title="Play/Pause" style="flex:1;">⏯ Play/Pause</button>
+        <button class="console-btn" id="btnYtNext" title="Piste suivante">⏭</button>
+      </div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
         <span style="font-size:14px">🔈</span>
         <input type="range" id="ytVolume" min="0" max="100" step="5" value="40" style="flex:1;">
