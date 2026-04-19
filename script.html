@@ -585,8 +585,270 @@
     .planB-header { padding: 14px 16px; }
   }
 
+  /* ═════════════════ CONSOLE DE PILOTAGE ═════════════════ */
+
+  /* Barre de pilotage en bas (fixe) */
+  .console {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(15, 10, 30, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--gold-soft);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 50;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
+    flex-wrap: wrap;
+  }
+  .console.hidden { transform: translateY(calc(100% - 40px)); }
+  .console-toggle {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--gold-soft);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  /* Timer global */
+  .timer-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(212, 169, 74, 0.08);
+    border: 1px solid var(--gold-soft);
+    border-radius: 6px;
+  }
+  .timer-display {
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    color: var(--gold);
+    font-weight: bold;
+    min-width: 70px;
+  }
+  .timer-display.running { color: #4ade80; }
+  .console-btn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .console-btn:hover {
+    background: rgba(212, 169, 74, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .console-btn.active {
+    background: rgba(212, 169, 74, 0.2);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .console-btn.big {
+    font-size: 16px;
+    padding: 8px 14px;
+  }
+
+  .console-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-right: 1px solid var(--border);
+  }
+  .console-group:last-child { border-right: none; }
+  .console-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-right: 4px;
+  }
+
+  /* Player audio */
+  .music-player {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 250px;
+  }
+  .music-select {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: inherit;
+    max-width: 200px;
+  }
+  .music-volume {
+    width: 80px;
+  }
+
+  /* Mini timers dans les blocs silence */
+  .silence-timer-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(212, 169, 74, 0.05);
+    border: 1px dashed var(--gold-soft);
+    border-radius: 8px;
+  }
+  .silence-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 28px;
+    color: var(--gold);
+    font-weight: bold;
+    letter-spacing: 2px;
+    min-width: 100px;
+    text-align: center;
+  }
+  .silence-timer.running {
+    color: #4ade80;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .silence-timer.done {
+    color: #ef4444;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .silence-btn {
+    background: var(--gold-soft);
+    color: var(--bg);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .silence-btn:hover { background: var(--gold); }
+  .silence-label {
+    color: var(--gold-soft);
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  /* Panneau config (modal) */
+  .config-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .config-modal.active { display: flex; }
+  .config-box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--gold-soft);
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .config-box h2 {
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: normal;
+  }
+  .config-box h3 {
+    color: var(--violet);
+    font-size: 15px;
+    margin: 16px 0 8px;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .config-box input[type=file],
+  .config-box input[type=text] {
+    width: 100%;
+    padding: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 5px;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .config-box .close {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .config-box .close:hover { color: var(--gold); }
+  .tracks-list {
+    list-style: none;
+    margin: 8px 0;
+  }
+  .tracks-list li {
+    padding: 6px 10px;
+    background: var(--bg);
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  .tracks-list .remove {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #spotifyEmbed { margin-top: 12px; border-radius: 8px; width: 100%; height: 152px; }
+
+  /* Mobile adaptations console */
+  @media (max-width: 768px) {
+    .console { padding: 8px 10px; gap: 6px; font-size: 12px; }
+    .console-group { padding: 2px 6px; gap: 4px; }
+    .console-label { display: none; }
+    .timer-display { font-size: 16px; min-width: 60px; }
+    .music-player { min-width: 150px; }
+    .music-select { max-width: 120px; font-size: 11px; }
+    .music-volume { width: 50px; }
+    .main { padding-bottom: 180px !important; }
+  }
+  .main { padding-bottom: 140px; }
+
   /* Print */
   @media print {
+    .console, .config-modal, .silence-timer-wrap { display: none !important; }
     .sidebar, .controls, .progress, .toggle-sidebar { display: none; }
     .main { margin-left: 0; max-width: none; }
     body { background: white; color: black; }
@@ -1538,7 +1800,367 @@ const setActive = () => {
 };
 window.addEventListener('scroll', setActive);
 setActive();
+// ═════════════════ CONSOLE DE PILOTAGE ═════════════════
+
+// --- Timer global ---
+let timerGlobal = { elapsed: 0, running: false, interval: null, startTime: null };
+const fmtTime = (s) => {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = Math.floor(s % 60);
+  return h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+};
+function renderGlobalTimer() {
+  const el = document.getElementById('timerGlobal');
+  if (el) {
+    el.textContent = fmtTime(timerGlobal.elapsed);
+    el.classList.toggle('running', timerGlobal.running);
+  }
+}
+function startGlobalTimer() {
+  if (timerGlobal.running) return;
+  timerGlobal.running = true;
+  timerGlobal.startTime = Date.now() - timerGlobal.elapsed * 1000;
+  timerGlobal.interval = setInterval(() => {
+    timerGlobal.elapsed = (Date.now() - timerGlobal.startTime) / 1000;
+    renderGlobalTimer();
+  }, 500);
+  renderGlobalTimer();
+}
+function pauseGlobalTimer() {
+  timerGlobal.running = false;
+  if (timerGlobal.interval) clearInterval(timerGlobal.interval);
+  renderGlobalTimer();
+}
+function resetGlobalTimer() {
+  pauseGlobalTimer();
+  timerGlobal.elapsed = 0;
+  renderGlobalTimer();
+}
+
+// --- Web Audio API : sons générés ---
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Petite cloche (tintement léger, ~2 sec)
+function playBell() {
+  if (customBellAudio) { customBellAudio.currentTime = 0; customBellAudio.play(); return; }
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+  const freqs = [1760, 2093]; // Do6 / La5
+  freqs.forEach((f, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.3 - i*0.1, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 2.8);
+  });
+}
+
+// Gong tibétain (fondamental + harmoniques, décroissance lente ~6 sec)
+function playGong() {
+  if (customGongAudio) { customGongAudio.currentTime = 0; customGongAudio.play(); return; }
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+  const harmonics = [
+    { f: 196, g: 0.35 },  // G3 fondamental
+    { f: 293, g: 0.18 },  // D4
+    { f: 392, g: 0.12 },  // G4
+    { f: 587, g: 0.08 },  // D5
+    { f: 784, g: 0.05 },  // G5
+  ];
+  harmonics.forEach(h => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = h.f;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(h.g, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 6);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 6.2);
+  });
+}
+
+// --- Custom sounds (uploadés) ---
+let customBellAudio = null, customGongAudio = null;
+
+// --- Playlist musique ---
+let tracks = []; // {name, url, element}
+let currentTrack = null;
+const musicAudio = new Audio();
+musicAudio.volume = 0.5;
+
+function renderTracksList() {
+  const ul = document.getElementById('tracksList');
+  const sel = document.getElementById('musicSelect');
+  if (!ul || !sel) return;
+  ul.innerHTML = '';
+  sel.innerHTML = '<option value="">— Choisir —</option>';
+  tracks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${t.name}</span><button class="remove" data-i="${i}">×</button>`;
+    ul.appendChild(li);
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+  ul.querySelectorAll('.remove').forEach(b => {
+    b.onclick = () => {
+      const i = parseInt(b.dataset.i);
+      URL.revokeObjectURL(tracks[i].url);
+      tracks.splice(i, 1);
+      renderTracksList();
+    };
+  });
+}
+
+function playSelectedTrack() {
+  const sel = document.getElementById('musicSelect');
+  const i = parseInt(sel.value);
+  if (isNaN(i) || !tracks[i]) return;
+  currentTrack = tracks[i];
+  musicAudio.src = currentTrack.url;
+  musicAudio.play().catch(e => console.error(e));
+  document.getElementById('btnMusicPlay').textContent = '⏸';
+}
+
+function toggleMusic() {
+  if (!musicAudio.src) { playSelectedTrack(); return; }
+  if (musicAudio.paused) {
+    musicAudio.play();
+    document.getElementById('btnMusicPlay').textContent = '⏸';
+  } else {
+    musicAudio.pause();
+    document.getElementById('btnMusicPlay').textContent = '▶';
+  }
+}
+
+function stopMusic() {
+  musicAudio.pause();
+  musicAudio.currentTime = 0;
+  document.getElementById('btnMusicPlay').textContent = '▶';
+}
+
+// --- Mini timers dans les blocs silence ---
+const silenceDurations = {};
+function createSilenceTimer(block, minutes) {
+  const sec = minutes * 60;
+  const id = 'sil_' + Math.random().toString(36).slice(2,9);
+  silenceDurations[id] = { total: sec, remaining: sec, running: false, interval: null };
+
+  const wrap = document.createElement('div');
+  wrap.className = 'silence-timer-wrap';
+  wrap.innerHTML = `
+    <span class="silence-label">━━━ ${minutes} MINUTES ━━━</span>
+    <span class="silence-timer" id="${id}_disp">${fmtTime(sec)}</span>
+    <button class="silence-btn" id="${id}_btn">▶ Démarrer</button>
+    <button class="console-btn" id="${id}_reset">↻</button>
+  `;
+  block.replaceWith(wrap);
+
+  const disp = document.getElementById(`${id}_disp`);
+  const btn = document.getElementById(`${id}_btn`);
+  const rst = document.getElementById(`${id}_reset`);
+
+  btn.onclick = () => {
+    const t = silenceDurations[id];
+    if (t.running) {
+      clearInterval(t.interval);
+      t.running = false;
+      btn.textContent = '▶ Reprendre';
+      disp.classList.remove('running');
+    } else {
+      t.running = true;
+      btn.textContent = '⏸ Pause';
+      disp.classList.add('running');
+      disp.classList.remove('done');
+      const start = Date.now();
+      const startRemaining = t.remaining;
+      t.interval = setInterval(() => {
+        t.remaining = startRemaining - (Date.now() - start) / 1000;
+        if (t.remaining <= 0) {
+          t.remaining = 0;
+          clearInterval(t.interval);
+          t.running = false;
+          btn.textContent = '✓ Fini';
+          disp.classList.remove('running');
+          disp.classList.add('done');
+          playBell(); // sonne la cloche à la fin
+        }
+        disp.textContent = fmtTime(t.remaining);
+      }, 200);
+    }
+  };
+  rst.onclick = () => {
+    const t = silenceDurations[id];
+    if (t.running) { clearInterval(t.interval); t.running = false; }
+    t.remaining = t.total;
+    disp.textContent = fmtTime(t.total);
+    disp.classList.remove('running', 'done');
+    btn.textContent = '▶ Démarrer';
+  };
+}
+
+// Convertit les blocs "━━━ X MINUTES ━━━" existants en timers cliquables
+function convertSilenceBlocks() {
+  document.querySelectorAll('.pause.big').forEach(block => {
+    const text = block.textContent;
+    const match = text.match(/(\d+)\s*MINUTES?/i);
+    if (match) {
+      createSilenceTimer(block, parseInt(match[1]));
+    }
+  });
+}
+
+// --- Spotify Embed ---
+function updateSpotifyEmbed() {
+  const url = document.getElementById('spotifyUrl').value.trim();
+  const ctr = document.getElementById('spotifyEmbed');
+  if (!url) { ctr.innerHTML = ''; return; }
+  // Convertit un lien Spotify classique en embed
+  const m = url.match(/spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
+  if (!m) { ctr.innerHTML = '<p style="color:#ef4444">URL invalide</p>'; return; }
+  const embedUrl = `https://open.spotify.com/embed/${m[1]}/${m[2]}`;
+  ctr.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+  localStorage.setItem('spotifyUrl', url);
+}
+
+// --- Init bindings ---
+document.addEventListener('DOMContentLoaded', () => {
+  convertSilenceBlocks();
+
+  document.getElementById('btnTimerStart').onclick = startGlobalTimer;
+  document.getElementById('btnTimerPause').onclick = pauseGlobalTimer;
+  document.getElementById('btnTimerReset').onclick = resetGlobalTimer;
+  document.getElementById('btnBell').onclick = playBell;
+  document.getElementById('btnGong').onclick = playGong;
+  document.getElementById('btnMusicPlay').onclick = toggleMusic;
+  document.getElementById('btnMusicStop').onclick = stopMusic;
+  document.getElementById('musicSelect').onchange = () => { if (document.getElementById('musicSelect').value) playSelectedTrack(); };
+  document.getElementById('musicVolume').oninput = (e) => { musicAudio.volume = parseFloat(e.target.value); };
+
+  document.getElementById('btnConfig').onclick = () => document.getElementById('configModal').classList.add('active');
+  document.getElementById('configClose').onclick = () => document.getElementById('configModal').classList.remove('active');
+  document.getElementById('configModal').onclick = (e) => { if (e.target.id === 'configModal') e.target.classList.remove('active'); };
+
+  // Upload musiques
+  document.getElementById('uploadMusic').onchange = (e) => {
+    for (const file of e.target.files) {
+      tracks.push({ name: file.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(file) });
+    }
+    renderTracksList();
+    e.target.value = '';
+  };
+  // Upload cloche
+  document.getElementById('uploadBell').onchange = (e) => {
+    const f = e.target.files[0];
+    if (f) { customBellAudio = new Audio(URL.createObjectURL(f)); alert('Cloche personnalisée chargée ✓'); }
+  };
+  // Upload gong
+  document.getElementById('uploadGong').onchange = (e) => {
+    const f = e.target.files[0];
+    if (f) { customGongAudio = new Audio(URL.createObjectURL(f)); alert('Gong personnalisé chargé ✓'); }
+  };
+  // Spotify
+  const savedSpotify = localStorage.getItem('spotifyUrl');
+  if (savedSpotify) { document.getElementById('spotifyUrl').value = savedSpotify; updateSpotifyEmbed(); }
+  document.getElementById('btnSpotifyLoad').onclick = updateSpotifyEmbed;
+
+  // Toggle console
+  document.getElementById('consoleToggle').onclick = () => {
+    document.getElementById('console').classList.toggle('hidden');
+    const t = document.getElementById('consoleToggle');
+    t.textContent = document.getElementById('console').classList.contains('hidden') ? '▲ Console' : '▼ Cacher';
+  };
+
+  // Fin musique
+  musicAudio.addEventListener('ended', () => {
+    document.getElementById('btnMusicPlay').textContent = '▶';
+  });
+});
 </script>
+
+<!-- ═════════════════ CONSOLE DE PILOTAGE ═════════════════ -->
+<div class="console" id="console">
+  <button class="console-toggle" id="consoleToggle">▼ Cacher</button>
+
+  <div class="console-group">
+    <span class="console-label">Séance</span>
+    <div class="timer-block">
+      <span class="timer-display" id="timerGlobal">00:00</span>
+    </div>
+    <button class="console-btn" id="btnTimerStart" title="Démarrer">▶</button>
+    <button class="console-btn" id="btnTimerPause" title="Pause">⏸</button>
+    <button class="console-btn" id="btnTimerReset" title="Reset">↻</button>
+  </div>
+
+  <div class="console-group">
+    <span class="console-label">Sons</span>
+    <button class="console-btn big" id="btnBell" title="Clochette (tintement court)">🔔</button>
+    <button class="console-btn big" id="btnGong" title="Gong tibétain (résonnance longue)">🎵</button>
+  </div>
+
+  <div class="console-group music-player">
+    <span class="console-label">Musique</span>
+    <select class="music-select" id="musicSelect"><option value="">— Choisir —</option></select>
+    <button class="console-btn" id="btnMusicPlay" title="Play/Pause">▶</button>
+    <button class="console-btn" id="btnMusicStop" title="Stop">⏹</button>
+    <input type="range" class="music-volume" id="musicVolume" min="0" max="1" step="0.05" value="0.5" title="Volume">
+  </div>
+
+  <div class="console-group">
+    <button class="console-btn" id="btnConfig" title="Configuration">⚙</button>
+  </div>
+</div>
+
+<!-- Modal config -->
+<div class="config-modal" id="configModal">
+  <div class="config-box">
+    <button class="close" id="configClose">×</button>
+    <h2>Configuration — sons & musiques</h2>
+
+    <h3>🎶 Musiques (fond de séance)</h3>
+    <input type="file" id="uploadMusic" accept="audio/*" multiple>
+    <p style="font-size:12px;color:var(--text-dim)">Sélectionne plusieurs fichiers audio (MP3, WAV, OGG...). Ils apparaîtront dans le menu déroulant de la console.</p>
+    <ul class="tracks-list" id="tracksList"></ul>
+
+    <h3>🔔 Clochette personnalisée (optionnel)</h3>
+    <input type="file" id="uploadBell" accept="audio/*">
+    <p style="font-size:12px;color:var(--text-dim)">Par défaut : tintement généré en Web Audio. Upload ton propre fichier pour le remplacer.</p>
+
+    <h3>🎵 Gong personnalisé (optionnel)</h3>
+    <input type="file" id="uploadGong" accept="audio/*">
+    <p style="font-size:12px;color:var(--text-dim)">Par défaut : gong tibétain généré. Upload ton MP3 de bol tibétain pour le remplacer.</p>
+
+    <h3>🔗 Playlist Spotify (optionnel)</h3>
+    <input type="text" id="spotifyUrl" placeholder="Colle l'URL d'une playlist Spotify (open.spotify.com/playlist/...)">
+    <button class="console-btn" id="btnSpotifyLoad" style="margin-top:4px">Charger</button>
+    <div id="spotifyEmbed"></div>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px">Contrôle la playlist directement depuis la page (play/pause/volume Spotify).</p>
+
+    <h3>💡 Tips</h3>
+    <p style="font-size:12px;color:var(--text-dim);line-height:1.6">
+      • <strong>Les blocs de silence (5', 4', 12')</strong> sont maintenant des timers cliquables. La clochette sonne automatiquement à la fin.<br>
+      • <strong>Les fichiers uploadés</strong> restent en mémoire tant que tu ne fermes pas l'onglet. Re-upload à chaque session.<br>
+      • <strong>Web Audio</strong> : les sons par défaut (cloche/gong) sont générés — ils fonctionnent même sans internet.<br>
+      • <strong>Spotify</strong> : nécessite que tu sois connecté dans un autre onglet à Spotify (gratuit ou premium).
+    </p>
+  </div>
+</div>
 
 </body>
 </html>
