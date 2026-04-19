@@ -20,6 +20,53 @@
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   }
 
+  /* Thème clair */
+  body.light-theme {
+    --bg: #faf7f2;
+    --bg-elevated: #ffffff;
+    --text: #2a1f4a;
+    --text-dim: #6b6480;
+    --gold: #b88c2a;
+    --gold-soft: #c9a558;
+    --violet: #6d4aa5;
+    --violet-dark: #4b2a82;
+    --border: #e5ddd0;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  body.light-theme .stars {
+    background-image:
+      radial-gradient(1px 1px at 15% 20%, rgba(109,74,165,0.12), transparent),
+      radial-gradient(1px 1px at 45% 70%, rgba(184,140,42,0.10), transparent),
+      radial-gradient(1px 1px at 70% 30%, rgba(109,74,165,0.12), transparent),
+      radial-gradient(1px 1px at 85% 60%, rgba(184,140,42,0.10), transparent),
+      radial-gradient(1.5px 1.5px at 25% 85%, rgba(184,140,42,0.15), transparent);
+  }
+  body.light-theme .voix {
+    color: #2a1f4a;
+  }
+  body.light-theme .note {
+    background: rgba(184, 140, 42, 0.08);
+    color: #8a6318;
+  }
+  body.light-theme .planB {
+    background: rgba(109, 74, 165, 0.04);
+  }
+  body.light-theme .planB-header {
+    background: rgba(109, 74, 165, 0.08);
+  }
+  body.light-theme .cover h1 {
+    color: #2a1f4a;
+  }
+  body.light-theme .checklist {
+    background: rgba(109, 74, 165, 0.06);
+  }
+  body.light-theme .console {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  body.light-theme .timer-display {
+    color: var(--violet);
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html { scroll-behavior: smooth; }
@@ -1163,6 +1210,7 @@
 <div class="controls">
   <button class="ctrl-btn" id="btnFont-" title="Texte plus petit">A−</button>
   <button class="ctrl-btn" id="btnFont+" title="Texte plus grand">A+</button>
+  <button class="ctrl-btn" id="btnTheme" title="Basculer thème clair/sombre">☀</button>
   <button class="ctrl-btn" id="btnReading" title="Mode lecture (cache notes techniques)">👁 Notes</button>
   <button class="ctrl-btn" id="btnSidebar" title="Masquer/afficher la nav">☰</button>
   <button class="ctrl-btn" id="btnFull" title="Plein écran">⛶</button>
@@ -2046,6 +2094,16 @@
 </main>
 
 <script>
+// ───── Thème clair/sombre ─────
+const themeBtn = document.getElementById('btnTheme');
+function applyTheme(isLight) {
+  document.body.classList.toggle('light-theme', isLight);
+  if (themeBtn) themeBtn.textContent = isLight ? '🌙' : '☀';
+  localStorage.setItem('lightTheme', isLight ? '1' : '0');
+}
+if (localStorage.getItem('lightTheme') === '1') applyTheme(true);
+if (themeBtn) themeBtn.onclick = () => applyTheme(!document.body.classList.contains('light-theme'));
+
 // ───── Taille police ─────
 let baseSize = parseInt(localStorage.getItem('baseSize') || '20');
 function applyFontSize() {
