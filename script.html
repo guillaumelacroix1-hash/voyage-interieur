@@ -2511,7 +2511,7 @@ function createSilenceTimer(block, minutes) {
           btn.textContent = '✓ Fini';
           disp.classList.remove('running');
           disp.classList.add('done');
-          playSound('bell'); // clochette auto à la fin
+          // (cloche auto retirée — à déclencher manuellement via la console)
         }
         disp.textContent = fmtTime(t.remaining);
       }, 200);
